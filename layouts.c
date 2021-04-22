@@ -341,6 +341,7 @@ void
 tile(Monitor *m)
 {
 	unsigned int i, n, h, mw, my, ty, framecount, tmpanim;
+    float mfacts = 0, sfacts = 0;
 	Client *c;
 
 	if (animated && clientcount() > 5)
@@ -348,43 +349,50 @@ tile(Monitor *m)
 	else
 		framecount = 7;
 
-	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++) {
+		if (n < m->nmaster)
+			mfacts += c->cfact;
+		else
+			sfacts += c->cfact;
+	}
 	if (n == 0)
 		return;
 
 	if (n > m->nmaster)
 		mw = m->nmaster ? m->ww * m->mfact : 0;
 	else {
-		mw = m->ww;
+		mw = m->ww - m->gappx;
 		if (n > 1 && n < m->nmaster) {
 			m->nmaster = n;
 			tile(m);
 			return;
 		}
 	}
-	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+	for (i = 0, my = ty = m->gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			// client is in the master
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			h = (m->wh - my) * (c->cfact / mfacts) - m->gappx;
 
             if (n == 2) {
                 tmpanim = animated;
                 animated = 0;
-			animateclient(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
+			animateclient(c, m->wx + m->gappx, m->wy + my, mw - (2*c->bw) - m->gappx, h - (2*c->bw), framecount, 0);
                 animated = tmpanim;
             } else {
-			animateclient(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
+			animateclient(c, m->wx + m->gappx, m->wy + my, mw - (2*c->bw) - m->gappx, h - (2*c->bw), framecount, 0);
 			if (m->nmaster == 1 && n > 1) {
-				mw = c->w + c->bw * 2;
+				mw = c->w + c->bw * 2 + m->gappx;
 			}
             }
-			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c);
+			if (my + HEIGHT(c) + m->gappx < m->wh)
+				my += HEIGHT(c) + m->gappx;
+            mfacts -= c->cfact;
 		} else {
 			// client is in the stack
-			h = (m->wh - ty) / (n - i);
-            animateclient(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), framecount, 0);
-			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c);
+			h = (m->wh - ty) * (c->cfact / sfacts) - m->gappx;
+            animateclient(c, m->wx + mw + m->gappx, m->wy + ty, m->ww - mw - (2*c->bw) - 2*m->gappx, h - (2*c->bw), framecount, 0);
+			if (ty + HEIGHT(c) + m->gappx < m->wh)
+				ty += HEIGHT(c) + m->gappx;
+            sfacts -= c->cfact;
 		}
 }
