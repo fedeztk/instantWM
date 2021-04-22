@@ -1254,6 +1254,7 @@ createmon(void)
 	m->nmaster = nmaster;
 	m->showbar = showbar;
 	m->topbar = topbar;
+    m->gappx = gappx;
 	m->clientcount = 0;
     m->overlaymode = 0;
 	m->scratchvisible = 0;
@@ -4096,6 +4097,16 @@ setfullscreen(Client *c, int fullscreen)
 		}
 
 	}
+}
+
+void
+setgaps(const Arg *arg)
+{
+	if ((arg->i == 0) || (selmon->gappx + arg->i < 0))
+		selmon->gappx = 0;
+	else
+		selmon->gappx += arg->i;
+	arrange(selmon);
 }
 
 void commandprefix(const Arg *arg) {
