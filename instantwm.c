@@ -2119,62 +2119,59 @@ int startswith(const char *a, const char *b)
 int
 xcommand()
 {
-	char command[256];
-    char *fcursor;
-    char *indicator="c;:;";
-	int i, argnum;
+    char command[256];
+    char *fcursor;  // walks through the command string as we go
+    char *indicator = "c;:;";
+    int i, argnum;
     Arg arg;
 
-	// Get root name property
-	if (!( gettextprop(root, XA_WM_NAME, command, sizeof(command))) ) {
-        return 0;
+    // Get root name property
+    int got_command = gettextprop(root, XA_WM_NAME, command, sizeof(command));
+    if ( !got_command || !startswith(command,indicator) ) {
+        return 0; // no command for us passed, get out
     }
-
-    if (startswith(command, indicator)) {
-        fcursor = command + 4;
-    } else {
-        // no command was found
-        return 0;
-    }
+    fcursor = command + strlen(indicator); // got command for us, strip indicator
 
     // Check if a command was found, and if so handle it
     for (i = 0; i < LENGTH(commands); i++) {
-        // is valid command
-        if (startswith(fcursor, commands[i].cmd)) {
-            fcursor += strlen(commands[i].cmd);
-            // no args
-            if (!strlen(fcursor)) {
-                arg = commands[i].arg;
-            } else {
-                if (fcursor[0] != ';')
-                    continue;
-                fcursor++;
-                switch (commands[i].type) {
-                    // no argument
-                    case 0:
-                        arg = commands[i].arg;
-                        break;
-                    case 1:
-                        argnum = atoi(fcursor);
-                        if (argnum != 0 && fcursor[0] != '0') {
-                            arg = ((Arg) { .ui = atoi(fcursor) });
-                        } else {
-                            arg = commands[i].arg;
-                        }
-                        break;
-                    case 3:
-                        argnum = atoi(fcursor);
-                        if (argnum != 0 && fcursor[0] != '0') {
-                            arg = ((Arg) { .ui = ( 1 << (atoi(fcursor) - 1) ) });
-                        } else {
-                            arg = commands[i].arg;
-                        }
-                        break;
-                }
-            }
-            commands[i].func(&(arg));
-            break;
-        }
+        if ( !startswith(fcursor, commands[i].cmd) )
+	    continue;
+        
+	fcursor += strlen(commands[i].cmd);
+	// no args
+	if (!strlen(fcursor)) {
+	    arg = commands[i].arg;
+	} else {
+	    if ( fcursor[0] != ';' ) {
+		// longer command staring with the same letters?
+	        fcursor -= strlen(commands[i].cmd);
+		continue;
+	    }
+	    fcursor++;
+	    switch (commands[i].type) {
+		case 0:  // command without argument
+		    arg = commands[i].arg;
+		    break;
+		case 1:  // toggle-type argument
+		    argnum = atoi(fcursor);
+		    if (argnum != 0 && fcursor[0] != '0') {
+			arg = ((Arg) { .ui = atoi(fcursor) });
+		    } else {
+			arg = commands[i].arg;
+		    }
+		    break;
+		case 3:  // tag-type argument (bitmask)
+		    argnum = atoi(fcursor);
+		    if (argnum != 0 && fcursor[0] != '0') {
+			arg = ((Arg) { .ui = ( 1 << (atoi(fcursor) - 1) ) });
+		    } else {
+			arg = commands[i].arg;
+		    }
+		    break;
+	    }
+	}
+	commands[i].func(&(arg));
+	break;
     }
     return 1;
 }
@@ -2472,12 +2469,12 @@ motionnotify(XEvent *e)
 	}
 
 	// cursor is to the left of window titles
-	if (ev->x_root < selmon->mx + tagwidth + startmenusize) {
+	if (ev->x_root < selmon->mx + tagwidth + 60) {
 		if (selmon->hoverclient)
 			selmon->hoverclient = NULL;
 
 		// don't animate if vacant tags are hidden
-		if (ev->x_root < selmon->activeoffset - 50 && !selmon->showtags) {
+		if (ev->x_root < selmon->mx + tagwidth && !selmon->showtags) {
 			// hover over start menu
 			if (ev->x_root < selmon->mx + startmenusize) {
 				selmon->gesture = 13;
@@ -2495,7 +2492,8 @@ motionnotify(XEvent *e)
 					drawbar(selmon);
 				}
 			}
-		}
+		} else
+            resetbar();
 	} else if (selmon->sel && ev->x_root < selmon->mx + 60 + tagwidth + selmon->btw) {
 		// cursor is on window titles
 
@@ -4434,6 +4432,59 @@ void followtag(const Arg *arg)
 		view(arg);
 
 	}
+}
+
+void
+swaptags(const Arg *arg)
+{
+	int ui = computeprefix(arg);
+	unsigned int newtag = ui & TAGMASK;
+	unsigned int curtag = selmon->tagset[selmon->seltags];
+
+	if (newtag == curtag || !curtag || (curtag & (curtag-1)))
+		return;
+
+	for (Client *c = selmon->clients; c != NULL; c = c->next) {
+		if((c->tags & newtag) || (c->tags & curtag))
+			c->tags ^= curtag ^ newtag;
+
+		if(!c->tags) c->tags = newtag;
+	}
+
+	selmon->tagset[selmon->seltags] = newtag;
+
+	int i, tmpnmaster, tmpsellt, tmpshowbar;
+	float tmpmfact;
+	const Layout *tmplt[2];
+	for (i = 0; !(ui & 1 << i); i++);
+
+	tmpnmaster = selmon->pertag->nmasters[selmon->pertag->curtag];
+	tmpmfact = selmon->pertag->mfacts[selmon->pertag->curtag];
+	tmpsellt = selmon->pertag->sellts[selmon->pertag->curtag];
+	tmplt[selmon->sellt] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt];
+	tmplt[selmon->sellt^1] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt^1];
+	tmpshowbar = selmon->pertag->showbars[selmon->pertag->curtag];
+
+	selmon->pertag->nmasters[selmon->pertag->curtag] = selmon->pertag->nmasters[i + 1];
+	selmon->pertag->mfacts[selmon->pertag->curtag] = selmon->pertag->mfacts[i + 1];
+	selmon->pertag->sellts[selmon->pertag->curtag] = selmon->pertag->sellts[i + 1];
+	selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt] = selmon->pertag->ltidxs[i + 1][selmon->sellt];
+	selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt^1] = selmon->pertag->ltidxs[i + 1][selmon->sellt^1];
+	selmon->pertag->showbars[selmon->pertag->curtag] = selmon->pertag->showbars[i + 1];
+
+	selmon->pertag->nmasters[i + 1] = tmpnmaster;
+	selmon->pertag->mfacts[i + 1] = tmpmfact;
+	selmon->pertag->sellts[i + 1] = tmpsellt;
+	selmon->pertag->ltidxs[i + 1][selmon->sellt] = tmplt[selmon->sellt];
+	selmon->pertag->ltidxs[i + 1][selmon->sellt^1] = tmplt[selmon->sellt^1];
+	selmon->pertag->showbars[i + 1] = tmpshowbar;
+
+	if (selmon->pertag->prevtag == i + 1)
+		selmon->pertag->prevtag = selmon->pertag->curtag;
+	selmon->pertag->curtag = i + 1;
+
+	focus(NULL);
+	arrange(selmon);
 }
 
 void followview(const Arg *arg)
