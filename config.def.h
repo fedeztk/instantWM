@@ -71,7 +71,7 @@ static const char *colors[][4] = {
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "s" };
 /* ffox, programming1, term, music, steam, folder, play icon, document, message  */
-static const char *tagsalt[] = { "I", "II", "III", "IV", "V", "VII", "VIII", "IX"};
+static const char *tagsalt[] = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
 
 static const char scratchpadname[] = "instantscratchpad";
 
@@ -242,7 +242,7 @@ static Xcommand commands[] = {
 
 static Key dkeys[] = {
 	/* modifier  key        function     argument */
-	{0,          XK_o,      spawn,       {.v = rangercmd } },
+	{0,          XK_r,      spawn,       {.v = rangercmd } },
 	{0,          XK_e,      spawn,       {.v = editorcmd } },
 	{0,          XK_n,      spawn,       {.v = nautiluscmd } },
 	{0,          XK_space,  spawn,       {.v = panther} },
