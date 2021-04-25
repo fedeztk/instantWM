@@ -246,7 +246,7 @@ static Xcommand commands[] = {
 
 static Key dkeys[] = {
 	/* modifier  key        function     argument */
-	{0,          XK_r,      spawn,       {.v = rangercmd } },
+	{0,          XK_o,      spawn,       {.v = rangercmd } },
 	{0,          XK_e,      spawn,       {.v = editorcmd } },
 	{0,          XK_n,      spawn,       {.v = nautiluscmd } },
 	{0,          XK_space,  spawn,       {.v = panther} },
@@ -295,7 +295,7 @@ static Key keys[] = {
 	{MODKEY|ShiftMask,                      XK_d,               drawwindow,           {0}},
 	{MODKEY|ShiftMask,                      XK_Escape,          spawn,                {.v = systemmonitorcmd}},
 
-	{MODKEY,                                XK_r,               spawn,                {.v = rangercmd } },
+	{MODKEY,                                XK_o,               spawn,                {.v = rangercmd } },
 	{MODKEY|ControlMask|Mod1Mask,           XK_r,               redrawwin,            {0} },
 	{MODKEY,                                XK_n,               spawn,                {.v = nautiluscmd } },
 	{MODKEY|ControlMask,                    XK_q,               spawn,                {.v = instantshutdowncmd } },
