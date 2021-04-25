@@ -112,15 +112,15 @@ static const int decorhints  = 1;    /* 1 means respect decoration hints */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "+",        tile },    /* first entry is default */
-	{ "#",        grid },
-	{ "-",        NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
-	{ "|||",      tcl },
-	{ "H[]",      deck },
-	{ "O",        overviewlayout },
-	{ "TTT",      bstack },
-	{ "===",      bstackhoriz },
+	{ "﬿",        tile },    /* first entry is default */
+	{ "",        grid },
+	{ "",        NULL },    /* no layout function means floating behavior */
+	{ "",      monocle },
+	{ "ﰦ",      tcl },
+	{ "",      deck },
+	{ "",        overviewlayout },
+	{ "難",      bstack },
+	{ "ﰧ",      bstackhoriz },
 	{ NULL,       NULL },
 };
 
