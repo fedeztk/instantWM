@@ -71,7 +71,7 @@ static const char *colors[][4] = {
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "s" };
 /* ffox, programming1, term, music, steam, folder, play icon, document, message  */
-static const char *tagsalt[] = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+static const char *tagsalt[] = { "", "", "", "", "", "", "", "", "" };
 
 static const char scratchpadname[] = "instantscratchpad";
 
@@ -438,6 +438,8 @@ static Key keys[] = {
 
 	{ MODKEY,                      XK_o,                     winview, {0} },
 
+    /* {MODKEY,                       Button4,                  viewtoleft,  {0}}, */
+    /* {MODKEY,                       Button5,                  viewtoright,  {0}}, */
 };
 
 /* button definitions */
