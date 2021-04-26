@@ -900,7 +900,9 @@ arrangemon(Monitor *m)
 
     for(c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
         if (!c->isfloating && !c->isfullscreen && 
-                ((c->mon->clientcount == 1 && NULL != c->mon->lt[c->mon->sellt]->arrange) || &monocle == c->mon->lt[c->mon->sellt]->arrange)) {
+                ((c->mon->clientcount == 1 && NULL != c->mon->lt[c->mon->sellt]->arrange
+                  && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)) || (&monocle == c->mon->lt[c->mon->sellt]->arrange
+                  && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)))) {
             savebw(c);
             c->bw = 0;
         } else {
