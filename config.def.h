@@ -103,6 +103,7 @@ static const Rule rules[] = {
 	{"Peek",                        NULL,     NULL,  0,         1,          -1},
 	{"ROX-Filer",                   NULL,     NULL,  0,         0,          -1},
 	{"Gnome-calculator",            NULL,     NULL,  0,         1,          -1},
+	{"MEGAsync",                    NULL,     NULL,  0,         1,          -1},
 };
 
 /* layout(s) */
