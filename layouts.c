@@ -134,15 +134,15 @@ deck(Monitor *m)
 	if(n > m->nmaster)
 		mw = m->nmaster ? m->ww * m->mfact : 0;
 	else
-		mw = m->ww;
+		mw = m->ww - gx;
 	for(i = my = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if(i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i) + gx;
-			resize(c, m->wx + gx, m->wy + my + gx , mw - (2*c->bw) - gx, h - (2*c->bw) - gx, False);
-			my += HEIGHT(c);
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			resize(c, m->wx + gx, m->wy + my + gx , mw - (2*c->bw) - gx, h - (2*c->bw) - 2 * gx, False);
+			my += HEIGHT(c) + gx;
 		}
 		else
-			resize(c, m->wx + mw + gx, m->wy + gx, m->ww - mw - (2*c->bw) - gx, m->wh - (2*c->bw) - gx, False);
+			resize(c, m->wx + mw + gx, m->wy + gx, m->ww - mw - (2*c->bw) - 2 * gx, m->wh - (2*c->bw) - 2 * gx, False);
 }
 
 void
