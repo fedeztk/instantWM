@@ -21,22 +21,22 @@ bstack(Monitor *m) {
 	if (n > m->nmaster) {
 		mh = m->nmaster ? m->mfact * m->wh : 0;
 		tw = m->ww / (n - m->nmaster);
-		ty = m->wy + mh;
+		ty = m->wy + mh - m->gappx;
 	} else {
 		mh = m->wh;
 		tw = m->ww;
-		ty = m->wy;
+		ty = m->wy - m->gappx;
 	}
 	for (i = mx = 0, tx = m->wx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
 		if (i < m->nmaster) {
 			w = (m->ww - mx) / (MIN(n, m->nmaster) - i);
-			animateclient(c, m->wx + mx, m->wy, w - (2 * c->bw), mh - (2 * c->bw), framecount, 0);
-			mx += WIDTH(c);
+			animateclient(c, m->wx + mx + m->gappx, m->wy + m->gappx, w - (2 * c->bw) - 2 * m->gappx, mh - (2 * c->bw) - 2 * m->gappx, framecount, 0);
+			mx += WIDTH(c) + m->gappx;
 		} else {
 			h = m->wh - mh;
-			animateclient(c, tx, ty, tw - (2 * c->bw), h - (2 * c->bw), framecount, 0);
+			animateclient(c, tx + m->gappx, ty + m->gappx, tw - (2 * c->bw) - 2 * m->gappx, h - (2 * c->bw) - 2 * m->gappx, framecount, 0);
 			if (tw != m->ww)
-				tx += WIDTH(c);
+				tx += WIDTH(c) + m->gappx;
 		}
 	}
 }
@@ -93,22 +93,22 @@ bstackhoriz(Monitor *m) {
 	if (n == 0)
 		return;
 	if (n > m->nmaster) {
-		mh = m->nmaster ? m->mfact * m->wh : 0;
+		mh = m->nmaster ? m->mfact * m->wh + m->gappx : 0;
 		th = (m->wh - mh) / (n - m->nmaster);
-		ty = m->wy + mh;
+		ty = m->wy + mh - m->gappx;
 	} else {
 		th = mh = m->wh;
-		ty = m->wy;
+		ty = m->wy - m->gappx;
 	}
 	for (i = mx = 0, tx = m->wx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
 		if (i < m->nmaster) {
 			w = (m->ww - mx) / (MIN(n, m->nmaster) - i);
-			animateclient(c, m->wx + mx, m->wy, w - (2 * c->bw), mh - (2 * c->bw), framecount, 0);
-			mx += WIDTH(c);
+			animateclient(c, m->wx + mx + m->gappx, m->wy + m->gappx, w - (2 * c->bw) - 2 * m->gappx, mh - (2 * c->bw) - 2 * m->gappx, framecount, 0);
+			mx += WIDTH(c) + m->gappx;
 		} else {
-		animateclient(c, tx, ty, m->ww - (2 * c->bw), th - (2 * c->bw), framecount, 0);
+		animateclient(c, tx + m->gappx, ty + m->gappx, m->ww - (2 * c->bw) - 2 * m->gappx, th - (2 * c->bw) - m->gappx, framecount, 0);
 			if (th != m->wh)
-				ty += HEIGHT(c);
+				ty += HEIGHT(c) + m->gappx;
 		}
 	}
 }
@@ -134,12 +134,12 @@ deck(Monitor *m)
 		mw = m->ww;
 	for(i = my = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if(i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), False);
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i) + m->gappx;
+			resize(c, m->wx + m->gappx, m->wy + my + m->gappx , mw - (2*c->bw) - m->gappx, h - (2*c->bw) - m->gappx, False);
 			my += HEIGHT(c);
 		}
 		else
-			resize(c, m->wx + mw, m->wy, m->ww - mw - (2*c->bw), m->wh - (2*c->bw), False);
+			resize(c, m->wx + mw + m->gappx, m->wy + m->gappx, m->ww - mw - (2*c->bw) - m->gappx, m->wh - (2*c->bw) - m->gappx, False);
 }
 
 void
@@ -161,15 +161,15 @@ grid(Monitor *m) {
 	cols = (rows && (rows - 1) * rows >= n) ? rows - 1 : rows;
 
 	/* window geoms (cell height/width) */
-	int ch = m->wh / (rows ? rows : 1);
-	int cw = m->ww / (cols ? cols : 1);
+	int ch = (m->wh - m->gappx) / (rows ? rows : 1);
+	int cw = (m->ww - m->gappx) / (cols ? cols : 1);
 	for(i = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
-		unsigned int cx = m->wx + (i / rows) * cw;
-		unsigned int cy = m->wy + (i % rows) * ch;
+		unsigned int cx = m->wx + (i / rows) * cw + m->gappx;
+		unsigned int cy = m->wy + (i % rows) * ch + m->gappx;
 		/* adjust height/width of last row/column's windows */
 		int ah = ((i + 1) % rows == 0) ? m->wh - ch * rows : 0;
 		unsigned int aw = (i >= rows * (cols - 1)) ? m->ww - cw * cols : 0;
-		animateclient(c, cx, cy, cw - 2 * c->bw + aw, ch - 2 * c->bw + ah, framecount, 0);
+		animateclient(c, cx, cy, cw - 2 * c->bw + aw - m->gappx, ch - 2 * c->bw + ah - m->gappx, framecount, 0);
 		i++;
 	}
 }
@@ -191,11 +191,11 @@ monocle(Monitor *m)
 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%1u]", n);
 	for (c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
 		if (animated && c == selmon->sel) {
-			animateclient(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 7, 0);
+			animateclient(c, m->wx + m->gappx, m->wy + m->gappx, m->ww - 2 * c->bw - 2 * m->gappx, m->wh - 2 * c->bw - 2 * m->gappx, 7, 0);
 			continue;
 		}
 			
-		resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
+		resize(c, m->wx + m->gappx, m->wy + m->gappx, m->ww - 2 * c->bw - 2 * m->gappx, m->wh - 2 * c->bw - 2 * m->gappx, 0);
 	}
 
 }
