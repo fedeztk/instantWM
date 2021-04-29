@@ -228,6 +228,7 @@ ResourcePref resources[] = {
 
 		{ "barheight",        INTEGER, &barheight },
 		{ "font",             STRING,  &xresourcesfont },
+		{ "gaps",             INTEGER, &gappx },
 
 };
 
