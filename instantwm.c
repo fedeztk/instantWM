@@ -2283,7 +2283,7 @@ manage(Window w, XWindowAttributes *wa)
 	c->w = c->oldw = wa->width;
 	c->h = c->oldh = wa->height;
 	c->oldbw = wa->border_width;
-    c->cfact = 1.0;
+	c->cfact = 1.0;
 
 	updatetitle(c);
 	if (XGetTransientForHint(dpy, w, &trans) && (t = wintoclient(trans))) {
@@ -3285,7 +3285,7 @@ void drawwindow(const Arg *arg) {
 
 	if (!selmon->sel)
 		return;
-	FILE *fp = popen("instantslop", "r");
+	FILE *fp = popen("instantslop -f x%xx%yx%wx%hx", "r");
 
     while (fgets(str, 100, fp) != NULL) {
     	strcat(strout, str);
@@ -3351,7 +3351,20 @@ dragtag(const Arg *arg)
 	if (!tagwidth)
 		tagwidth = gettagwidth();
 	if ((arg->ui & TAGMASK) != selmon->tagset[selmon->seltags]) {
-		view(arg);
+		unsigned int state;
+		int x;
+		Window dummy;
+		XQueryPointer(dpy, root, &dummy, &dummy, &x, &x, &x, &x, &state);
+		if ((state & ShiftMask) && (state & ControlMask))
+			toggletag(arg);
+		else if (state & ShiftMask)
+			tag(arg);
+		else if (state & ControlMask)
+			toggleview(arg);
+		else if (state & Mod1Mask)
+			followtag(arg);
+		else
+			view(arg);
 		return;
 	}
 
@@ -3395,10 +3408,19 @@ dragtag(const Arg *arg)
 
 	if (!leftbar) {
 		if (ev.xmotion.x_root < selmon->mx + tagwidth) {
-			if (ev.xmotion.state & ShiftMask) {
+			if ((ev.xmotion.state & ShiftMask) && (ev.xmotion.state & ControlMask)) {
+				if (tagprefix) {
+					tagall(&((Arg) { .ui = 1 << getxtag(ev.xmotion.x_root) }));
+					tagprefix = 1;
+				} else
+					tagall(&((Arg) { .ui = 1 << getxtag(ev.xmotion.x_root) }));
+				view(&((Arg) { .ui = 1 << getxtag(ev.xmotion.x_root) }));
+			} else if (ev.xmotion.state & ShiftMask) {
 				followtag(&((Arg) { .ui = 1 << getxtag(ev.xmotion.x_root) }));
 			} else if (ev.xmotion.state & ControlMask) {
 				tagall(&((Arg) { .ui = 1 << getxtag(ev.xmotion.x_root) }));
+			} else if (ev.xmotion.state & Mod1Mask) {
+				swaptags(&((Arg) { .ui = 1 << getxtag(ev.xmotion.x_root) }));
 			} else {
 				tag(&((Arg) { .ui = 1 << getxtag(ev.xmotion.x_root) }));
 			}
@@ -5675,11 +5697,12 @@ updatewmhints(Client *c)
 
 void
 keyview(const Arg *arg) {
-	if (arg->ui == selmon->tagset[selmon->seltags]) {
+	int ui = computeprefix(arg);
+	if (ui == selmon->tagset[selmon->seltags]) {
 		if (selmon->pertag->curtag != selmon->pertag->prevtag)
 			lastview(NULL);
 	} else
-		view(arg);
+		view(&((Arg) { .ui = ui }));
 }
 
 void

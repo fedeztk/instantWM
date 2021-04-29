@@ -166,6 +166,9 @@ static const char *keylayoutswitchcmd[] = {"instantkeyswitch", NULL};
 static const char *iswitchcmd[] = {"iswitch", NULL};
 static const char *instantswitchcmd[] = {"rofi", "-show", "window", "-kb-row-down", "Alt+Tab,Down", "-kb-row-up", "Alt+Ctrl+Tab,Up", "-kb-accept-entry", "!Alt_L,!Alt+Tab,Return", "-me-select-entry", "", "-me-accept-entry", "MousePrimary", NULL};
 static const char *caretinstantswitchcmd[] = {"rofi", "-show", "window", "-kb-row-down", "Alt+Tab,Down", "-kb-row-up", "Alt+Ctrl+Tab,Up", "-kb-accept-entry", "!Alt_L,!Alt+Tab,Return", "-me-select-entry", "", "-me-accept-entry", "MousePrimary", "-theme", "/usr/share/instantdotfiles/rofi/appmenu.rasi", NULL};
+static const char *notificationclose[] = {"dunstctl", "close", NULL};
+static const char *notificationpop[] = {"dunstctl", "history-pop", NULL};
+static const char *notificationaction[] = {"dunstctl", "context", NULL};
 static const char *onboardcmd[] = {"onboard", NULL};
 static const char *instantshutdowncmd[] = {"instantshutdown", NULL};
 static const char *systemmonitorcmd[] = {".config/instantos/default/systemmonitor", NULL};
@@ -290,6 +293,9 @@ static Key dkeys[] = {
 static Key keys[] = {
 	/* modifier                             key                 function              argument */
 
+	{MODKEY|ControlMask,                    XK_Up,              spawn,                {.v = notificationclose}},
+	{MODKEY|ControlMask,                    XK_Down,            spawn,                {.v = notificationpop}},
+	{MODKEY|ControlMask,                    XK_Return,          spawn,                {.v = notificationaction}},
 	{MODKEY|Mod1Mask,                       XK_j,               keyresize,            {.i = 0}},
 	{MODKEY|Mod1Mask,                       XK_k,               keyresize,            {.i = 1}},
 	{MODKEY|Mod1Mask,                       XK_l,               keyresize,            {.i = 2}},
@@ -359,6 +365,7 @@ static Key keys[] = {
 	{MODKEY|ShiftMask,                      XK_Tab,             focuslastclient,      {0}},
 	{MODKEY|Mod1Mask,                       XK_Tab,             followview,           {0}},
 	{MODKEY,                                XK_q,               shutkill,             {0}},
+    {MODKEY|ShiftMask,                      XK_q,               togglelocked,         {0}},
 	{Mod1Mask,                              XK_F4,              killclient,           {0}},
 	{MODKEY,                                XK_F1,              spawn,                {.v = helpcmd}},
 	{MODKEY,                                XK_F2,              toggleprefix,         {0}},
@@ -491,13 +498,16 @@ static Button buttons[] = {
 	{ ClkClientWin,   MODKEY|Mod1Mask,    Button3, forceresizemouse,  {0} },
 	{ ClkClientWin,   MODKEY|ShiftMask,   Button3, resizeaspectmouse, {0} },
 	{ ClkTagBar,      0,                  Button1, dragtag,           {0} },
+	{ ClkTagBar,      ControlMask,        Button1, dragtag,           {0} },
+	{ ClkTagBar,      ShiftMask,          Button1, dragtag,           {0} },
+	{ ClkTagBar,      ShiftMask|ControlMask, Button1, dragtag,        {0} },
+	{ ClkTagBar,      Mod1Mask,           Button1, dragtag,           {0} },
 	{ ClkTagBar,      0,                  Button5, viewtoright,       {0} },
 	{ ClkTagBar,      MODKEY,             Button4, shiftview,         {.i = -1 } },
 	{ ClkTagBar,      MODKEY,             Button5, shiftview,         {.i = +1 } },
 	{ ClkTagBar,      0,                  Button4, viewtoleft,        {0} },
 	{ ClkTagBar,      0,                  Button3, toggleview,        {0} },
 	{ ClkTagBar,      MODKEY,             Button1, tag,               {0} },
-	{ ClkTagBar,      Mod1Mask,           Button1, followtag,         {0} },
 	{ ClkTagBar,      MODKEY,             Button3, toggletag,         {0} },
 	{ ClkShutDown,    0,                  Button1, spawn,             {.v = instantshutdowncmd } },
 	{ ClkShutDown,    0,                  Button3, spawn,             {.v = slockcmd } },
