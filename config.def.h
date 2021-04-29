@@ -3,7 +3,7 @@
 
 /* appearance */
 static const unsigned int borderpx = 3;		  /* border pixel of windows */
-static const unsigned int gappx = 6;          /* gaps between windows */
+static unsigned int gappx = 6;          /* gaps between windows */
 static const unsigned int snap = 32;		  /* snap pixel */
 static const unsigned int startmenusize = 30;		  /* snap pixel */
 static const unsigned int systraypinning = 0; /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
@@ -226,6 +226,7 @@ ResourcePref resources[] = {
 
 		{ "barheight",        INTEGER, &barheight },
 		{ "font",             STRING,  &xresourcesfont },
+		{ "gaps",             INTEGER, &gappx },
 
 };
 
