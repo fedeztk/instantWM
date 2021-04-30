@@ -76,7 +76,7 @@ static const char *colors[][4] = {
 /* tagging */
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "s" };
 /* ffox, programming1, term, music, steam, folder, play icon, document, message  */
-static const char *tagsalt[] = { "", "{}", "$", "", "", "", "", "", "" };
+static const char *tagsalt[] = { "", "", "", "", "", "", "", "", "" };
 
 static const char scratchpadname[] = "instantscratchpad";
 
@@ -106,6 +106,8 @@ static const Rule rules[] = {
 	{"org-wellkord-globonote-Main", NULL,     NULL,  0,         1,          -1},
 	{"Peek",                        NULL,     NULL,  0,         1,          -1},
 	{"ROX-Filer",                   NULL,     NULL,  0,         0,          -1},
+	{"Gnome-calculator",            NULL,     NULL,  0,         1,          -1},
+	{"MEGAsync",                    NULL,     NULL,  0,         1,          -1},
 };
 
 /* layout(s) */
@@ -116,15 +118,15 @@ static const int decorhints  = 1;    /* 1 means respect decoration hints */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "+",        tile },    /* first entry is default */
-	{ "#",        grid },
-	{ "-",        NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
-	{ "|||",      tcl },
-	{ "H[]",      deck },
-	{ "O",        overviewlayout },
-	{ "TTT",      bstack },
-	{ "===",      bstackhoriz },
+	{ "﬿",        tile },    /* first entry is default */
+	{ "",        grid },
+	{ "",        NULL },    /* no layout function means floating behavior */
+	{ "",      monocle },
+	{ "ﰦ",      tcl },
+	{ "",      deck },
+	{ "",        overviewlayout },
+	{ "難",      bstack },
+	{ "ﰧ",      bstackhoriz },
 	{ NULL,       NULL },
 };
 
@@ -258,7 +260,7 @@ static Xcommand commands[] = {
 
 static Key dkeys[] = {
 	/* modifier  key        function     argument */
-	{0,          XK_r,      spawn,       {.v = rangercmd } },
+	{0,          XK_o,      spawn,       {.v = rangercmd } },
 	{0,          XK_e,      spawn,       {.v = editorcmd } },
 	{0,          XK_n,      spawn,       {.v = nautiluscmd } },
 	{0,          XK_space,  spawn,       {.v = panther} },
@@ -317,7 +319,7 @@ static Key keys[] = {
 	{MODKEY|ShiftMask,                      XK_d,               drawwindow,           {0}},
 	{MODKEY|ShiftMask,                      XK_Escape,          spawn,                {.v = systemmonitorcmd}},
 
-	{MODKEY,                                XK_r,               spawn,                {.v = rangercmd } },
+	{MODKEY,                                XK_o,               spawn,                {.v = rangercmd } },
 	{MODKEY|ControlMask|Mod1Mask,           XK_r,               redrawwin,            {0} },
 	{MODKEY,                                XK_n,               spawn,                {.v = nautiluscmd } },
 	{MODKEY|ControlMask,                    XK_q,               spawn,                {.v = instantshutdowncmd } },
