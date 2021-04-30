@@ -5,9 +5,9 @@
 /* appearance */
 static const unsigned int borderpx = 3;		  /* border pixel of windows */
 static const unsigned int snap = 32;		  /* snap pixel */
-static const unsigned int outergap = 20;
-static const unsigned int innergap = 10;
-static const unsigned int enablegap = 1;
+static unsigned int outergap = 20;
+static unsigned int innergap = 10;
+static unsigned int enablegap = 1;
 static int smartgap = 0;
 static const unsigned int startmenusize = 30;		  /* snap pixel */
 static const unsigned int systraypinning = 0; /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
@@ -231,6 +231,10 @@ ResourcePref resources[] = {
 		{ "barheight",        INTEGER, &barheight },
 		{ "font",             STRING,  &xresourcesfont },
 
+		{ "outergap",         INTEGER, &outergap },
+		{ "innergap",         INTEGER, &innergap },
+		{ "enablegap",        INTEGER, &enablegap },
+		{ "smartgap",         INTEGER, &smartgap }
 };
 
 static Xcommand commands[] = {
