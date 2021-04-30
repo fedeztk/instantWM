@@ -5,7 +5,7 @@
 /* appearance */
 static const unsigned int borderpx = 3;		  /* border pixel of windows */
 static const unsigned int snap = 32;		  /* snap pixel */
-static unsigned int outergap = 20;
+static unsigned int outergap = 10;
 static unsigned int innergap = 10;
 static unsigned int enablegap = 1;
 static int smartgap = 0;
@@ -306,6 +306,8 @@ static Key keys[] = {
 	{MODKEY,                                XK_backslash,       togglegaps,           {0}},
 	{MODKEY|ShiftMask,                      XK_backslash,       defaultgaps,          {0}},
 	{MODKEY|ControlMask,                    XK_backslash,       togglesmartgaps,      {0}},
+	{MODKEY,                                XK_equal,       changegap,            {.i = +1}},
+	{MODKEY,                                XK_minus,       changegap,            {.i = -1}},
 	/* modifier                             key                 function              argument */
 
 	{MODKEY|ControlMask,                    XK_Up,              spawn,                {.v = notificationclose}},

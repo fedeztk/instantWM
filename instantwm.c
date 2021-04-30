@@ -121,6 +121,12 @@ struct Pertag {
 	int smartgaps[LENGTH(tags) + 1];
 };
 
+void changegap(const Arg *arg){
+    setgaps(
+            selmon->innergap + arg->i,
+            selmon->outergap + arg->i
+    );
+}
 void changeigap(const Arg *arg){
 	setgaps(
 		selmon->innergap + arg->i,

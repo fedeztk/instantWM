@@ -187,6 +187,7 @@ struct Systray {
 	Client *icons;
 };
 
+void changegap(const Arg *arg);
 void changeogap(const Arg *arg);
 void changeigap(const Arg *arg);
 void togglegaps(const Arg *arg);
