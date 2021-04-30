@@ -91,6 +91,7 @@ bstackhoriz(Monitor *m) {
 	int w, mh, mx, tx, ty, th, framecount, rw, rh, rx, ry;
 	unsigned int i, n;
 	Client *c;
+	ty = 0;
 
 	if (animated && clientcount() > 4)
 		framecount = 4;
