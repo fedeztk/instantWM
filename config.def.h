@@ -232,6 +232,7 @@ ResourcePref resources[] = {
 
 		{ "barheight",        INTEGER, &barheight },
 		{ "font",             STRING,  &xresourcesfont },
+		{ "animated",         INTEGER, &animated },
 
 		{ "outergap",         INTEGER, &outergap },
 		{ "innergap",         INTEGER, &innergap },
