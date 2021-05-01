@@ -318,8 +318,8 @@ static Key keys[] = {
 	{MODKEY,                                XK_backslash,       togglegaps,           {0}},
 	{MODKEY|ShiftMask,                      XK_backslash,       defaultgaps,          {0}},
 	{MODKEY|ControlMask,                    XK_backslash,       togglesmartgaps,      {0}},
-	{MODKEY,                                XK_equal,       changegap,            {.i = +1}},
-	{MODKEY,                                XK_minus,       changegap,            {.i = -1}},
+	{MODKEY,                                XK_equal,           changegap,            {.i = +1}},
+	{MODKEY,                                XK_minus,           changegap,            {.i = -1}},
 	/* modifier                             key                 function              argument */
 
 	{MODKEY|ControlMask,                    XK_Up,              spawn,                {.v = notificationclose}},
