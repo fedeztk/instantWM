@@ -3538,6 +3538,13 @@ nametag(const Arg *arg) {
 	drawbars();
 }
 
+void
+resetnametag(const Arg *arg)
+{
+	for (int i = 0; i < 21; i++)
+		strcpy((char *)&tags[i], tags_default[i]);
+	drawbars();
+}
 
 Client *
 nexttiled(Client *c)
@@ -3610,7 +3617,7 @@ propertynotify(XEvent *e)
 void
 quit(const Arg *arg)
 {
-	running = 0;
+	exit(0);
 }
 
 // return monitor that a rectangle is on
