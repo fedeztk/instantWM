@@ -73,6 +73,9 @@ static const char *colors[][4] = {
 	[SchemeHoverTags] = { col_white,       col_hover_blue, col_light_blue,     col_hover_dark_blue },
 };
 
+/* staticstatus */
+static const int statmonval = 0;
+
 /* tagging */
 #define MAX_TAGLEN 16
 static const char *tags_default[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "s"};
@@ -439,6 +442,8 @@ static Key keys[] = {
 	{MODKEY|Mod1Mask,                       XK_period,                       followmon,  {.i = +1}},
 	{MODKEY|ShiftMask,                      XK_t,               nametag,              {0}},
 	{MODKEY|ControlMask,                    XK_t,               resetnametag,         {0}},
+	{MODKEY|ControlMask,                    XK_b,               cyclestatusbarmon,    {0}},
+	{MODKEY|ShiftMask,                      XK_b,               statusbarmontoggle,   {0}},
 
 	{MODKEY|ShiftMask|ControlMask|Mod1Mask, XK_period,                       desktopset, {0}},
 	TAGKEYS(XK_1, 0)
