@@ -336,7 +336,7 @@ tcl(Monitor * m)
 
 	if (n > 1)
 	{
-		x = m->wx + ((n > 1) ? mw + sw : mw);
+		x = m->wx + mw + sw;
 		y = m->wy;
 		h = m->wh / (n / 2);
 
@@ -357,7 +357,7 @@ tcl(Monitor * m)
 		}
 	}
 
-	x = (n + 1 / 2) == 1 ? mw : m->wx;
+	x = (n + 1 / 2) == 1 ? mw + m->wx : m->wx;
 	y = m->wy;
 	h = m->wh / ((n + 1) / 2);
 
