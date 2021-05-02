@@ -74,7 +74,7 @@ static const char *colors[][4] = {
 };
 
 /* staticstatus */
-static const int statmonval = 0;
+static const unsigned int statmonval = 0; /* 0 for autodetection by largest monitor width, 1, 2, or more for specific monitors */
 
 /* tagging */
 #define MAX_TAGLEN 16
