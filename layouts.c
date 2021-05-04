@@ -165,6 +165,12 @@ grid(Monitor *m) {
 	int rows, framecount, rw, rh, rx, ry;
 	unsigned int i, n, cols;
 	Client *c;
+    
+	if (m->clientcount <= 2 && m->mw > m->mh)
+	{
+		tile(m);
+		return;
+	}
 
 	if (animated && clientcount() > 5)
 		framecount = 3;
@@ -223,12 +229,7 @@ monocle(Monitor *m)
 	if (n > 0) /* override layout symbol */
 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%1u]", n);
 	for (c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
-		if (animated && c == selmon->sel) {
-			animateclient(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 7, 0);
-			continue;
-		}
-			
-		resize(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 0);
+		animateclient(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 7 * (animated && c == selmon->sel), 0);
 	}
 
 }
@@ -330,7 +331,7 @@ tcl(Monitor * m)
 
 	if (n > 1)
 	{
-		x = m->wx + ((n > 1) ? mw + sw : mw);
+		x = m->wx + mw + sw;
 		y = m->wy;
 		h = m->wh / (n / 2);
 
@@ -351,7 +352,7 @@ tcl(Monitor * m)
 		}
 	}
 
-	x = (n + 1 / 2) == 1 ? mw : m->wx;
+	x = (n + 1 / 2) == 1 ? mw + m->wx : m->wx;
 	y = m->wy;
 	h = m->wh / ((n + 1) / 2);
 
@@ -373,7 +374,7 @@ tcl(Monitor * m)
 void
 tile(Monitor *m)
 {
-	unsigned int i, n, h, mw, my, ty, framecount, tmpanim, rw, rh, rx, ry;
+	unsigned int i, n, h, mw, my, ty, framecount, rw, rh, rx, ry;
 	Client *c;
 
 	if (animated && clientcount() > 5)
@@ -406,10 +407,7 @@ tile(Monitor *m)
 			h = (rh - my + INNERGAP) / (MIN(n, m->nmaster) - i) - INNERGAP;
 
             if (n == 2) {
-                tmpanim = animated;
-                animated = 0;
-			animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
-                animated = tmpanim;
+                animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), 0, 0);
             } else {
 			animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
 			if (m->nmaster == 1 && n > 1) {

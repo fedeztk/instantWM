@@ -129,17 +129,23 @@ void changegap(const Arg *arg){
 }
 
 void changeigap(const Arg *arg){
+	int tmpanimated = animated;
+	animated = 0;
 	setgaps(
 		selmon->innergap + arg->i,
 		selmon->outergap
 	);
+	animated = tmpanimated;
 }
 
 void changeogap(const Arg *arg){
+	int tmpanimated = animated;
+	animated = 0;
 	setgaps(
 		selmon->innergap,
 		selmon->outergap + arg->i
 	);
+	animated = tmpanimated;
 }
 void
 togglegaps(const Arg *arg){
@@ -493,11 +499,24 @@ void checkanimate(Client *c, int x, int y, int w, int h, int frames, int resetpo
 // move client to position within a set amount of frames
 void animateclient(Client *c, int x, int y, int w, int h, int frames, int resetpos)
 {
-	int time;
-	int oldx, oldy;
 	int width, height;
 	width = w ? w : c->w;
 	height = h ? h : c->h;
+
+	// halve frames if enough events are queried
+	frames = frames / 1 + (XEventsQueued(dpy, QueuedAlready) > 50);
+
+	// No animation if even more events are queried
+    if (!frames || XEventsQueued(dpy, QueuedAlready) > 100) {
+        if (resetpos)
+            resize(c, c->x, c->y, width, height, 0);
+        else
+            resize(c, x, y, width, height, 1);
+        return;
+    }
+
+	int time;
+	int oldx, oldy;
 
 	// prevent oversizing when minimizing/unminimizing
 	if (width > c->mon->mw - (2 * c->bw))
@@ -888,14 +907,14 @@ arrange(Monitor *m)
 void
 arrangemon(Monitor *m)
 {
+    if (m == selmon)
+        selmon->clientcount = clientcount();
     strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof m->ltsymbol);
     if (m->lt[m->sellt]->arrange)
         m->lt[m->sellt]->arrange(m);
     else
         floatl(m);
 
-    if (m == selmon)
-        selmon->clientcount = clientcount();
     if (m->fullscreen) {
     int tbw;
         tbw = selmon->fullscreen->bw;
@@ -4008,7 +4027,7 @@ run(void)
 	/* main event loop */
 	XSync(dpy, False);
 	while (running && !XNextEvent(dpy, &ev))
-		if (handler[ev.type])
+		if (handler[ev.type] && XEventsQueued(dpy, QueuedAlready) < 120)
 			handler[ev.type](&ev); /* call handler */
 }
 
@@ -4220,6 +4239,24 @@ commandlayout(const Arg *arg) {
 
     larg = &((Arg) { .v = &layouts[layoutnumber] });
     setlayout(larg);
+}
+
+void
+settcltilelayout(const Arg *arg)
+{
+	if (strcmp(selmon->lt[selmon->sellt]->symbol, layouts[0].symbol) != 0)
+		setlayout(arg);
+	else
+		setlayout(&((Arg) { .v = &layouts[4]}));
+}
+
+void
+setmonocledecklayout(const Arg *arg)
+{
+	if (strcmp(selmon->lt[selmon->sellt]->symbol, layouts[3].symbol) != 0)
+		setlayout(arg);
+	else
+		setlayout(&((Arg) { .v = &layouts[5]}));
 }
 
 void
