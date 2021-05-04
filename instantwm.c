@@ -3693,11 +3693,11 @@ resizeclient(Client *c, int x, int y, int w, int h)
 
     if (!c->isfloating) {
         if (!c->isfullscreen &&
-        (c->mon->clientcount == 1 &&
+        ((c->mon->clientcount == 1 &&
         !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap) &&
          NULL != c->mon->lt[c->mon->sellt]->arrange) ||
-        &monocle == c->mon->lt[c->mon->sellt]->arrange && c->bw != 0 &&
-        !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)) {
+        (&monocle == c->mon->lt[c->mon->sellt]->arrange && c->bw != 0 &&
+        !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)))) {
             c->w = wc.width += c->bw * 2;
             c->h = wc.height += c->bw * 2;
             wc.border_width = 0;
