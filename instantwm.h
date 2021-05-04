@@ -293,6 +293,7 @@ void setclientstate(Client *c, long state);
 void setfocus(Client *c);
 void setfullscreen(Client *c, int fullscreen);
 void settcltilelayout(const Arg *arg);
+void setmonocledecklayout(const Arg *arg);
 void setlayout(const Arg *arg);
 void commandlayout(const Arg *arg);
 void commandprefix(const Arg *arg);
