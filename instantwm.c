@@ -4240,6 +4240,15 @@ settcltilelayout(const Arg *arg)
 }
 
 void
+setmonocledecklayout(const Arg *arg)
+{
+	if (strcmp(selmon->lt[selmon->sellt]->symbol, layouts[3].symbol) != 0)
+		setlayout(arg);
+	else
+		setlayout(&((Arg) { .v = &layouts[5]}));
+}
+
+void
 setlayout(const Arg *arg)
 {
     int multimon;
