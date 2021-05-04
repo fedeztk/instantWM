@@ -18,12 +18,18 @@ prevc(Client *c, float f) {
 }
 
 // get amount of tiled clients
-int clientcount()
+
+int clientcountmon(Monitor *m)
 {
 	int n;
 	Client *c;
-	for (n = 0, c = nexttiled(selmon->clients); c; c = nexttiled(c->next), n++);
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	return n;
+}
+
+int clientcount()
+{
+	return clientcountmon(selmon);
 }
 
 int allclientcount()
