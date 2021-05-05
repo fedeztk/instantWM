@@ -62,6 +62,7 @@ static int pausedraw = 0;
 static int statuswidth = 0;
 
 static int isdesktop = 0;
+static int statmontoggle = 0;
 
 static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
@@ -107,6 +108,7 @@ int commandoffsets[20];
 
 int forceresize = 0;
 Monitor *selmon;
+Monitor *statmon;
 
 struct Pertag {
 	unsigned int curtag, prevtag; /* current and previous tag */
@@ -907,8 +909,20 @@ arrange(Monitor *m)
 void
 arrangemon(Monitor *m)
 {
-    if (m == selmon)
-        selmon->clientcount = clientcount();
+
+    Client *c;
+    m->clientcount = clientcountmon(m);
+
+    for(c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
+        if (!c->isfloating && !c->isfullscreen &&
+                ((c->mon->clientcount == 1 && NULL != c->mon->lt[c->mon->sellt]->arrange && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)) || (&monocle == c->mon->lt[c->mon->sellt]->arrange && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)))) {
+            savebw(c);
+            c->bw = 0;
+        } else {
+            restorebw(c);
+        }
+    }
+
     strncpy(m->ltsymbol, m->lt[m->sellt]->symbol, sizeof m->ltsymbol);
     if (m->lt[m->sellt]->arrange)
         m->lt[m->sellt]->arrange(m);
@@ -1590,7 +1604,7 @@ drawbar(Monitor *m)
 		stw = getsystraywidth();
 
 	/* draw status first so it can be overdrawn by tags later */
-	if (m == selmon) { /* status is only drawn on selected monitor */
+	if (m == (statmontoggle ? statmon : selmon)) { /* status is only drawn on selected monitor */
 		sw = m->ww - stw - drawstatusbar(m, bh, stext);
 
 	}
@@ -2536,7 +2550,7 @@ motionnotify(XEvent *e)
 	}
 
 	// toggle overlay gesture
-	if (ev->y_root == 0 && ev->x_root >= selmon->mx + selmon->ww - 20 - getsystraywidth()) {
+	if (ev->y_root == selmon->my && ev->x_root >= selmon->mx + selmon->ww - 20 - getsystraywidth()) {
 		if (selmon->gesture != 11) {
 			selmon->gesture = 11;
 			setoverlay();
@@ -3695,14 +3709,6 @@ resizeclient(Client *c, int x, int y, int w, int h)
 	c->oldw = c->w; c->w = wc.width = w;
 	c->oldh = c->h; c->h = wc.height = h;
 	wc.border_width = c->bw;
-
-	if ((!c->isfullscreen && !c->isfloating) &&
-	((nexttiled(c->mon->clients) == c && !nexttiled(c->next) && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap) && NULL != c->mon->lt[c->mon->sellt]->arrange) ||
-	&monocle == c->mon->lt[c->mon->sellt]->arrange) && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)) {
-		c->w = wc.width += c->bw * 2;
-		c->h = wc.height += c->bw * 2;
-		wc.border_width = 0;
-	}
 
 	XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
 	configure(c);
@@ -5115,11 +5121,16 @@ togglefloating(const Arg *arg)
 		return;
 	selmon->sel->isfloating = !selmon->sel->isfloating || selmon->sel->isfixed;
 	if (selmon->sel->isfloating) {
-		/* restore last known float dimensions */
+        restorebw(selmon->sel);
 		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColFloat].pixel);
 		animateclient(selmon->sel, selmon->sel->sfx, selmon->sel->sfy,
- 		       selmon->sel->sfw, selmon->sel->sfh, 7, 0);
- 	} else {
+		       selmon->sel->sfw, selmon->sel->sfh, 7, 0);
+	} else {
+        selmon->clientcount = clientcount();
+        if (selmon->clientcount <= 1 && !selmon->sel->snapstatus) {
+            savebw(selmon->sel);
+            selmon->sel->bw = 0;
+        }
 		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColBorder].pixel);
 		/* save last known float dimensions */
 		selmon->sel->sfx = selmon->sel->x;
@@ -5512,7 +5523,9 @@ updategeom(void)
 				else
 					mons = createmon();
 			}
+			statmon = mons;
 			for (i = 0, m = mons; i < nn && m; m = m->next, i++)
+			{
 				if (i >= n
 				|| unique[i].x_org != m->mx || unique[i].y_org != m->my
 				|| unique[i].width != m->mw || unique[i].height != m->mh)
@@ -5525,6 +5538,9 @@ updategeom(void)
 					m->mh = m->wh = unique[i].height;
 					updatebarpos(m);
 				}
+				if ((m->mw > statmon->mw && statmonval <= 0) || i == statmonval - 1)
+					statmon = m;
+			}
 		} else { /* less monitors available nn < n */
 			for (i = nn; i < n; i++) {
 				for (m = mons; m && m->next; m = m->next);
@@ -5538,6 +5554,8 @@ updategeom(void)
 				}
 				if (m == selmon)
 					selmon = mons;
+				if (m == statmon)
+					statmon = mons;
 				cleanupmon(m);
 			}
 		}
@@ -5658,11 +5676,31 @@ updatesizehints(Client *c)
 }
 
 void
+statusbarmontoggle(const Arg *arg)
+{
+	statmontoggle = !statmontoggle;
+	drawbars();
+}
+
+void
+cyclestatusbarmon(const Arg *arg)
+{
+	if (!statmontoggle)
+		return;
+	Monitor *nextcyclemon = statmon->next;
+	if (nextcyclemon)
+		statmon = nextcyclemon;
+	else
+		statmon = mons;
+	drawbars();
+}
+
+void
 updatestatus(void)
 {
 	if (!gettextprop(root, XA_WM_NAME, stext, sizeof(stext)))
 		strcpy(stext, "instantwm-"VERSION);
-	drawbar(selmon);
+	drawbar((statmontoggle ? statmon : selmon));
 	updatesystray();
 }
 
@@ -6381,8 +6419,8 @@ systraytomon(Monitor *m) {
 	int i, n;
 	if(!systraypinning) {
 		if(!m)
-			return selmon;
-		return m == selmon ? m : NULL;
+			return (statmontoggle ? statmon : selmon);
+		return m == (statmontoggle ? statmon :selmon) ? m : NULL;
 	}
 	for(n = 1, t = mons; t && t->next; n++, t = t->next) ;
 	for(i = 1, t = mons; t && t->next && i < systraypinning; i++, t = t->next) ;
