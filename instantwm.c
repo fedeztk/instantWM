@@ -5028,6 +5028,7 @@ toggleshowtags(const Arg *arg)
     int showtags = selmon->showtags;
     ctrltoggle(&showtags, arg->ui);
     selmon->showtags = showtags;
+	tagwidth = gettagwidth();
 	drawbar(selmon);
 }
 
