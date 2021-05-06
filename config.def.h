@@ -238,12 +238,7 @@ ResourcePref resources[] = {
 
 		{ "barheight",        INTEGER, &barheight },
 		{ "font",             STRING,  &xresourcesfont },
-		{ "animated",         INTEGER, &animated },
 
-		{ "outergap",         INTEGER, &outergap },
-		{ "innergap",         INTEGER, &innergap },
-		{ "enablegap",        INTEGER, &enablegap },
-		{ "smartgap",         INTEGER, &smartgap },
 		{ "tag1",             STRING,  &tags[0] },
 		{ "tag2",             STRING,  &tags[1] },
 		{ "tag3",             STRING,  &tags[2] },
@@ -253,8 +248,14 @@ ResourcePref resources[] = {
 		{ "tag7",             STRING,  &tags[6] },
 		{ "tag8",             STRING,  &tags[7] },
 		{ "tag9",             STRING,  &tags[8] },
+
+		{ "outergap",         INTEGER, &outergap },
+		{ "innergap",         INTEGER, &innergap },
+		{ "enablegap",        INTEGER, &enablegap },
+		{ "smartgap",         INTEGER, &smartgap }
 };
 
+// instantwmctrl commands
 static Xcommand commands[] = {
 	/* signum       function        default argument  arg handler*/
 	// 0 means off, 1 means toggle, 2 means on
@@ -272,6 +273,8 @@ static Xcommand commands[] = {
 	{ "tagmon",                 tagmon,                       { .i = +1 }, 0 },
 	{ "followmon",              followmon,                    { .i = +1 }, 0 },
 	{ "focusmon",               focusmon,                     { .i = +1 }, 0 },
+	{ "nametag",                nametag,                      { .v = "tag" }, 4 },
+	{ "resetnametag",           resetnametag,                 {0}, 0 },
 };
 
 static Key dkeys[] = {
@@ -446,8 +449,6 @@ static Key keys[] = {
 	{MODKEY|ShiftMask,                      XK_period,          tagmon,               {.i = +1}},
 	{MODKEY|Mod1Mask,                       XK_comma,           followmon,            {.i = -1}},
 	{MODKEY|Mod1Mask,                       XK_period,                       followmon,  {.i = +1}},
-	{MODKEY|ShiftMask,                      XK_t,               nametag,              {0}},
-	{MODKEY|ControlMask,                    XK_t,               resetnametag,         {0}},
 	{MODKEY|ControlMask,                    XK_b,               cyclestatusbarmon,    {0}},
 	{MODKEY|ShiftMask,                      XK_b,               statusbarmontoggle,   {0}},
 
