@@ -113,7 +113,7 @@ static const Rule rules[] = {
 	{"ROX-Filer",                   NULL,     NULL,  0,         0,          -1},
 	{"Gnome-calculator",            NULL,     NULL,  0,         1,          -1},
 	{"MEGAsync",                    NULL,     NULL,  0,         1,          -1},
-	{"lightcord",                   NULL,     NULL,128,         0,          -1},
+	//{"lightcord",                   NULL,     NULL,128,         0,          -1},
 };
 
 /* layout(s) */
