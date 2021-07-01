@@ -206,6 +206,8 @@ static const char *playerprevious[] = { "playerctl", "previous", NULL};
 static const char *playerpause[] = { "playerctl", "play-pause", NULL};
 static const char *spoticli[] = { "spoticli", "m", NULL};
 
+static const char *skippyxd[] = { "instantskippy", NULL};
+
 #include "push.c"
 
 ResourcePref resources[] = {
@@ -480,6 +482,7 @@ static Key keys[] = {
 
 	{ MODKEY,                      XK_o,                     winview, {0} },
 
+	{ControlMask,                  XK_Tab,                    spawn,   {.v = skippyxd}},
 };
 
 /* button definitions */
