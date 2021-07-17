@@ -129,6 +129,10 @@ struct Monitor {
 	int bt;               /* number of tasks */
 	int mx, my, mw, mh;   /* screen size */
 	int wx, wy, ww, wh;   /* window area  */
+	int innergap;
+	int outergap;
+	int enablegap;
+	int smartgap;
 	unsigned int seltags;
 	unsigned int sellt;
 	unsigned int tagset[2];
@@ -184,6 +188,13 @@ struct Systray {
 };
 
 /* function declarations */
+void changeogap(const Arg *arg);
+void changeigap(const Arg *arg);
+void togglegaps(const Arg *arg);
+void togglesmartgaps(const Arg *arg);
+void defaultgaps(const Arg *arg);
+void setgaps(int i, int o);
+
 void applyrules(Client *c);
 int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
 void arrange(Monitor *m);

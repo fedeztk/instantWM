@@ -1,12 +1,16 @@
 /* See LICENSE file for copyright and license details. */
 
 #include "layouts.h"
+#include "instantwm.h"
 #include "push.h"
 #include "util.h"
 
+#define OUTERGAP m->outergap*(m->enablegap && (!m->smartgap || n != 1))
+#define INNERGAP m->innergap*m->enablegap
+
 void
 bstack(Monitor *m) {
-	int w, h, mh, mx, tx, ty, tw, framecount;
+	int w, h, mh, mx, tx, ty, tw, framecount, rw, rh, rx, ry;
 	unsigned int i, n;
 	Client *c;
 
@@ -18,25 +22,29 @@ bstack(Monitor *m) {
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
+
+	rh = m->wh - 2*OUTERGAP;
+	rw = m->ww - 2*OUTERGAP*m->mw/m->mh;
+	ry = m->wy + OUTERGAP;
+	rx = m->wx + OUTERGAP*m->mw/m->mh;
+
 	if (n > m->nmaster) {
-		mh = m->nmaster ? m->mfact * m->wh : 0;
-		tw = m->ww / (n - m->nmaster);
-		ty = m->wy + mh;
+		mh = m->nmaster ? m->mfact * rh - INNERGAP / 2 : 0;
+		ty = ry + mh;
 	} else {
-		mh = m->wh;
-		tw = m->ww;
-		ty = m->wy;
+		mh = rh;
+		ty = ry;
 	}
-	for (i = mx = 0, tx = m->wx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
+	for (i = mx = tx = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
 		if (i < m->nmaster) {
-			w = (m->ww - mx) / (MIN(n, m->nmaster) - i);
-			animateclient(c, m->wx + mx, m->wy, w - (2 * c->bw), mh - (2 * c->bw), framecount, 0);
-			mx += WIDTH(c);
+			w = (rw - mx + INNERGAP) / (MIN(n, m->nmaster) - i) - INNERGAP;
+			animateclient(c, rx + mx, ry, w - (2 * c->bw), mh - (2 * c->bw), framecount, 0);
+			mx += WIDTH(c) + INNERGAP;
 		} else {
-			h = m->wh - mh;
-			animateclient(c, tx, ty, tw - (2 * c->bw), h - (2 * c->bw), framecount, 0);
-			if (tw != m->ww)
-				tx += WIDTH(c);
+			h = rh - mh;
+			tw = (rw - tx + INNERGAP) / (n - i) - INNERGAP;
+			animateclient(c, tx + rx, ty + INNERGAP * (m->nmaster != 0), tw - (2 * c->bw), h - (2 * c->bw) - INNERGAP * (m->nmaster != 0), framecount, 0);
+			tx += WIDTH(c) + INNERGAP;
 		}
 	}
 }
@@ -80,7 +88,7 @@ void floatl(Monitor *m) {
 
 void
 bstackhoriz(Monitor *m) {
-	int w, mh, mx, tx, ty, th, framecount;
+	int w, mh, mx, tx, ty, th, framecount, rw, rh, rx, ry;
 	unsigned int i, n;
 	Client *c;
 
@@ -92,23 +100,27 @@ bstackhoriz(Monitor *m) {
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
+
+	rh = m->wh - 2*OUTERGAP;
+	rw = m->ww - 2*OUTERGAP*m->mw/m->mh;
+	ry = m->wy + OUTERGAP;
+	rx = m->wx + OUTERGAP*m->mw/m->mh;
+
 	if (n > m->nmaster) {
-		mh = m->nmaster ? m->mfact * m->wh : 0;
-		th = (m->wh - mh) / (n - m->nmaster);
-		ty = m->wy + mh;
+		mh = m->nmaster ? m->mfact * rh - INNERGAP / 2 : 0;
+		ty = mh + INNERGAP * (m->nmaster != 0);
 	} else {
-		th = mh = m->wh;
-		ty = m->wy;
+		th = mh = rh;
 	}
-	for (i = mx = 0, tx = m->wx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
+	for (i = mx = 0, tx = rx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
 		if (i < m->nmaster) {
-			w = (m->ww - mx) / (MIN(n, m->nmaster) - i);
-			animateclient(c, m->wx + mx, m->wy, w - (2 * c->bw), mh - (2 * c->bw), framecount, 0);
-			mx += WIDTH(c);
+			w = (rw - mx + INNERGAP) / (MIN(n, m->nmaster) - i) - INNERGAP;
+			animateclient(c, rx + mx, ry, w - (2 * c->bw), mh - (2 * c->bw), framecount, 0);
+			mx += WIDTH(c) + INNERGAP;
 		} else {
-		animateclient(c, tx, ty, m->ww - (2 * c->bw), th - (2 * c->bw), framecount, 0);
-			if (th != m->wh)
-				ty += HEIGHT(c);
+			th = (rh - ty + INNERGAP) / (n - i) - INNERGAP;
+			animateclient(c, tx, ty + ry, rw - (2 * c->bw), th - (2 * c->bw), framecount, 0);
+			ty += HEIGHT(c) + INNERGAP;
 		}
 	}
 }
@@ -116,11 +128,11 @@ bstackhoriz(Monitor *m) {
 void
 deck(Monitor *m)
 {
-	int dn;
+	int dn, rw, rh, rx, ry;
 	unsigned int i, n, h, mw, my;
 	Client *c;
 
-	for(n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if(n == 0)
 		return;
 
@@ -128,26 +140,31 @@ deck(Monitor *m)
 	if(dn > 0) /* override layout symbol */
 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "D %d", dn);
 
+	rh = m->wh - 2*OUTERGAP;
+	rw = m->ww - 2*OUTERGAP*m->mw/m->mh;
+	ry = m->wy + OUTERGAP;
+	rx = m->wx + OUTERGAP*m->mw/m->mh;
+
 	if(n > m->nmaster)
-		mw = m->nmaster ? m->ww * m->mfact : 0;
+		mw = m->nmaster ? rw * m->mfact - INNERGAP / 2 : 0;
 	else
-		mw = m->ww;
+		mw = rw;
 	for(i = my = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if(i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), False);
-			my += HEIGHT(c);
+			h = (rh - my + INNERGAP) / (MIN(n, m->nmaster) - i) - INNERGAP;
+			resize(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), False);
+			my += HEIGHT(c) + INNERGAP;
 		}
 		else
-			resize(c, m->wx + mw, m->wy, m->ww - mw - (2*c->bw), m->wh - (2*c->bw), False);
+			resize(c, rx + mw + INNERGAP * (m->nmaster != 0), ry, rw - mw - (2*c->bw) - INNERGAP * (m->nmaster != 0), rh - (2*c->bw), False);
 }
 
 void
 grid(Monitor *m) {
-	int i, n, rows, framecount;
-	unsigned int cols;
+	int rows, framecount, rw, rh, rx, ry;
+	unsigned int i, n, cols;
 	Client *c;
-    
+
 	if (m->clientcount <= 2 && m->mw > m->mh)
 	{
 		tile(m);
@@ -158,8 +175,15 @@ grid(Monitor *m) {
 		framecount = 3;
 	else
 		framecount = 6;
-	for(n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next))
-		n++;
+
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if(n == 0)
+		return;
+
+	rh = m->wh - 2*OUTERGAP;
+	rw = m->ww - 2*OUTERGAP*m->mw/m->mh;
+	ry = m->wy + OUTERGAP;
+	rx = m->wx + OUTERGAP*m->mw/m->mh;
 
 	/* grid dimensions */
 	for(rows = 0; rows <= n/2; rows++)
@@ -168,14 +192,14 @@ grid(Monitor *m) {
 	cols = (rows && (rows - 1) * rows >= n) ? rows - 1 : rows;
 
 	/* window geoms (cell height/width) */
-	int ch = m->wh / (rows ? rows : 1);
-	int cw = m->ww / (cols ? cols : 1);
+	int ch = rh / (rows ? rows : 1) - INNERGAP * (rows - 1) / (rows ? rows : 1);
+	int cw = rw / (cols ? cols : 1) - INNERGAP * (cols - 1) / (cols ? cols : 1);;
 	for(i = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
-		unsigned int cx = m->wx + (i / rows) * cw;
-		unsigned int cy = m->wy + (i % rows) * ch;
+		unsigned int cx = rx + (i / rows) * (cw + INNERGAP);
+		unsigned int cy = ry + (i % rows) * (ch + INNERGAP);
 		/* adjust height/width of last row/column's windows */
-		int ah = ((i + 1) % rows == 0) ? m->wh - ch * rows : 0;
-		unsigned int aw = (i >= rows * (cols - 1)) ? m->ww - cw * cols : 0;
+		int ah = ((i + 1) % rows == 0) ? rh - ch * rows - INNERGAP * (rows - 1) : 0;
+		unsigned int aw = (i >= rows * (cols - 1)) ? rw - cw * cols - INNERGAP * (cols - 1) : 0;
 		animateclient(c, cx, cy, cw - 2 * c->bw + aw, ch - 2 * c->bw + ah, framecount, 0);
 		i++;
 	}
@@ -185,19 +209,30 @@ grid(Monitor *m) {
 void
 monocle(Monitor *m)
 {
-	unsigned int n = 0;
+	int rw, rh, rx, ry;
+	unsigned int n;
 	Client *c;
 
 	if (animated && selmon->sel)
 		XRaiseWindow(dpy, selmon->sel->win);
 
-	for (c = m->clients; c; c = c->next)
-		if (ISVISIBLE(c))
-			n++;
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+	if (n == 0)
+		return;
+
+	rh = m->wh - 2*OUTERGAP*!m->smartgap;
+	rw = m->ww - 2*OUTERGAP*m->mw/m->mh*!m->smartgap;
+	ry = m->wy + OUTERGAP*!m->smartgap;
+	rx = m->wx + OUTERGAP*m->mw/m->mh*!m->smartgap;
+
 	if (n > 0) /* override layout symbol */
 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%1u]", n);
 	for (c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
-		animateclient(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 7 * (animated && c == selmon->sel), 0);
+		if (animated && c == selmon->sel) {
+			animateclient(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 7, 0);
+			continue;
+		}
+		resize(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 0);
 	}
 
 }
@@ -266,83 +301,72 @@ overviewlayout(Monitor *m)
 	XSync(dpy, False);
 }
 
-void
-tcl(Monitor * m)
-{
-	int x, y, h, w, mw, sw, bdw;
-	unsigned int i, n;
-	Client * c;
+void tcl (Monitor* m) {
+	unsigned int i, n, h, mw, mx, my, oty, ety, tw, rw, rh, rx, ry, framecount;
+	Client*      c;
 
-	for (n = 0, c = nexttiled(m->clients); c;
-			c = nexttiled(c->next), n++);
+	if (animated && clientcount() > 5)
+		framecount = 3;
+	else
+		framecount = 6;
 
+	/* count number of clients in the selected monitor */
+	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
 
-	c = nexttiled(m->clients);
+	rh = m->wh - 2 * OUTERGAP;
+	rw = m->ww - 2 * OUTERGAP * m->mw / m->mh;
+	ry = m->wy + OUTERGAP;
+	rx = m->wx + OUTERGAP * m->mw / m->mh;
 
-	mw = m->mfact * m->ww;
-	sw = (m->ww - mw) / 2;
-	bdw = (2 * c->bw);
-	resize(c,
-			n < 3 ? m->wx : m->wx + sw,
-			m->wy,
-			n == 1 ? m->ww - bdw : mw - bdw,
-			m->wh - bdw,
-			False);
+	/* initialize areas */
+	mw = rw;
+	mx = 0;
+	my = 0;
+	tw = mw;
 
-	if (--n == 0)
-		return;
+	if (n > m->nmaster) {
+		/* go mfact box in the center if more than nmaster clients */
+		mw = m->nmaster ? rw * m->mfact - INNERGAP / 2 * ((n - m->nmaster > 1) + 1) - INNERGAP % 2 : 0;
+		tw = rw - mw;
 
-	w = (m->ww - mw) / ((n > 1) + 1);
-	c = nexttiled(c->next);
-
-	if (n > 1)
-	{
-		x = m->wx + mw + sw;
-		y = m->wy;
-		h = m->wh / (n / 2);
-
-		if (h < bh)
-			h = m->wh;
-
-		for (i = 0; c && i < n / 2; c = nexttiled(c->next), i++)
-		{
-			resize(c,
-					x,
-					y,
-					w - bdw,
-					(i + 1 == n / 2) ? m->wy + m->wh - y - bdw : h - bdw,
-					False);
-
-			if (h != m->wh)
-				y = c->y + HEIGHT(c);
+		if (n - m->nmaster > 1) {
+			/* only one client */
+			mx = (rw - mw) / 2;
+			tw = (rw - mw) / 2;
 		}
 	}
 
-	x = (n + 1 / 2) == 1 ? mw + m->wx : m->wx;
-	y = m->wy;
-	h = m->wh / ((n + 1) / 2);
-
-	if (h < bh)
-		h = m->wh;
-
-	int rw = w - bdw;
-
-	for (i = 0; c; c = nexttiled(c->next), i++)
-	{
-		int rh = (i + 1 == (n + 1) / 2) ? m->wy + m->wh - y - bdw : h - bdw;
-		resize(c, x, y, rw,	rh, 0);
-
-		if (h != m->wh)
-			y = c->y + HEIGHT(c);
-	}
+	oty = 0;
+	ety = 0;
+	for (i = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		if (i < m->nmaster) {
+			/* nmaster clients are stacked vertically, in the center
+		 * of the screen */
+			h = (rh - my + INNERGAP) / (MIN(n, m->nmaster) - i) - INNERGAP;
+			animateclient(c, rx + mx, ry + my, mw - (2 * c->bw),
+			              h - (2 * c->bw), framecount, 0);
+			my += HEIGHT(c) + INNERGAP;
+		} else if ((i - m->nmaster) <= (n - m->nmaster - 1) / 2) {
+			// column on the right
+			h = (rh - oty + INNERGAP) / ((n - m->nmaster + 1) / 2 - i + m->nmaster) - INNERGAP;
+			animateclient(c, rx + mx + mw + INNERGAP * (n!=1) / ((!m->nmaster) + 1), ry + oty,
+			              tw - (2 * c->bw) - INNERGAP * (n!=1) / ((!m->nmaster) + 1), h - (2 * c->bw), framecount, 0);
+			oty += HEIGHT(c) + INNERGAP;
+		} else {
+			// column on the right
+			h = (rh - ety + INNERGAP) / (n - i) - INNERGAP;
+			animateclient(c, rx, ry + ety, tw - (2 * c->bw) - INNERGAP / ((!m->nmaster) + 1) - INNERGAP % 2 * (!m->nmaster),
+			              h - (2 * c->bw), framecount, 0);
+			ety += HEIGHT(c) + INNERGAP;
+		}
 }
 
 void
 tile(Monitor *m)
 {
-	unsigned int i, n, h, mw, my, ty, framecount;
+	unsigned int i, n, h, mw, my, ty, framecount, rw, rh, rx, ry;
 	Client *c;
 
 	if (animated && clientcount() > 5)
@@ -354,10 +378,15 @@ tile(Monitor *m)
 	if (n == 0)
 		return;
 
+	rh = m->wh - 2*OUTERGAP;
+	rw = m->ww - 2*OUTERGAP*m->mw/m->mh;
+	ry = m->wy + OUTERGAP;
+	rx = m->wx + OUTERGAP*m->mw/m->mh;
+
 	if (n > m->nmaster)
-		mw = m->nmaster ? m->ww * m->mfact : 0;
+		mw = m->nmaster ? rw * m->mfact - INNERGAP / 2 : 0;
 	else {
-		mw = m->ww;
+		mw = rw;
 		if (n > 1 && n < m->nmaster) {
 			m->nmaster = n;
 			tile(m);
@@ -367,23 +396,23 @@ tile(Monitor *m)
 	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
 			// client is in the master
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
+			h = (rh - my + INNERGAP) / (MIN(n, m->nmaster) - i) - INNERGAP;
 
-            if (n == 2) {
-                animateclient(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0, 0);
-            } else {
-			animateclient(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
+            if (n == 2)
+                animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
+            else {
+			animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
 			if (m->nmaster == 1 && n > 1) {
 				mw = c->w + c->bw * 2;
 			}
             }
-			if (my + HEIGHT(c) < m->wh)
-				my += HEIGHT(c);
+			if (my + HEIGHT(c) < rh)
+				my += HEIGHT(c) + INNERGAP;
 		} else {
 			// client is in the stack
-			h = (m->wh - ty) / (n - i);
-            animateclient(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), framecount, 0);
-			if (ty + HEIGHT(c) < m->wh)
-				ty += HEIGHT(c);
+			h = (rh - ty + INNERGAP) / (n - i) - INNERGAP;
+            animateclient(c, rx + mw + INNERGAP * (m->nmaster != 0), ry + ty, rw - mw - (2*c->bw) - INNERGAP * (m->nmaster != 0), h - (2*c->bw), framecount, 0);
+			if (ty + HEIGHT(c) < rh)
+				ty += HEIGHT(c) + INNERGAP;
 		}
 }
