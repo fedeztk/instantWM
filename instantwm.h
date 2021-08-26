@@ -194,9 +194,6 @@ void togglegaps(const Arg *arg);
 void togglesmartgaps(const Arg *arg);
 void defaultgaps(const Arg *arg);
 void setgaps(int i, int o);
-/* function declarations */
-
-
 
 void applyrules(Client *c);
 int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
@@ -321,6 +318,7 @@ void downpress(const Arg *arg);
 void togglealttag(const Arg *arg);
 void alttabfree(const Arg *arg);
 void toggleanimated(const Arg *arg);
+void setborderwidth(const Arg *arg);
 void togglefocusfollowsmouse(const Arg *arg);
 void togglefocusfollowsfloatmouse(const Arg *arg);
 void toggledoubledraw(const Arg *arg);

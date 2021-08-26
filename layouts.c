@@ -165,7 +165,7 @@ grid(Monitor *m) {
 	int rows, framecount, rw, rh, rx, ry;
 	unsigned int i, n, cols;
 	Client *c;
-    
+
 	if (m->clientcount <= 2 && m->mw > m->mh)
 	{
 		tile(m);
@@ -229,7 +229,11 @@ monocle(Monitor *m)
 	if (n > 0) /* override layout symbol */
 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%1u]", n);
 	for (c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
-		animateclient(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 7 * (animated && c == selmon->sel), 0);
+		if (animated && c == selmon->sel) {
+			animateclient(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 7, 0);
+			continue;
+		}
+		resize(c, rx, ry, rw - 2 * c->bw, rh - 2 * c->bw, 0);
 	}
 
 }
@@ -395,9 +399,9 @@ tile(Monitor *m)
 			// client is in the master
 			h = (rh - my + INNERGAP) / (MIN(n, m->nmaster) - i) - INNERGAP;
 
-            if (n == 2) {
-                animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), 0, 0);
-            } else {
+            if (n == 2)
+                animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
+            else {
 			animateclient(c, rx, ry + my, mw - (2*c->bw), h - (2*c->bw), framecount, 0);
 			if (m->nmaster == 1 && n > 1) {
 				mw = c->w + c->bw * 2;

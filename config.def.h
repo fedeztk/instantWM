@@ -179,6 +179,7 @@ static const char *caretinstantswitchcmd[] = {"rofi", "-show", "window", "-kb-ro
 static const char *notificationclose[] = {"dunstctl", "close", NULL};
 static const char *notificationpop[] = {"dunstctl", "history-pop", NULL};
 static const char *notificationaction[] = {"dunstctl", "context", NULL};
+static const char *instantskippycmd[] = {"instantskippy", NULL};
 static const char *onboardcmd[] = {"onboard", NULL};
 static const char *instantshutdowncmd[] = {"instantshutdown", NULL};
 static const char *systemmonitorcmd[] = {".config/instantos/default/systemmonitor", NULL};
@@ -262,8 +263,10 @@ static Xcommand commands[] = {
 	/* signum       function        default argument  arg handler*/
 	// 0 means off, 1 means toggle, 2 means on
 	{ "overlay",                setoverlay,                   {0},         0 },
+	{ "warpfocus",              warpfocus,                   {0},         0 },
 	{ "tag",                    view,                         { .ui = 2 }, 3 },
 	{ "animated",               toggleanimated,               { .ui = 2 }, 1 },
+	{ "border",                 setborderwidth,               { .i =  borderpx  }, 5 },
 	{ "focusfollowsmouse",      togglefocusfollowsmouse,      { .ui = 2 }, 1 },
 	{ "focusfollowsfloatmouse", togglefocusfollowsfloatmouse, { .ui = 2 }, 1 },
 	{ "alttab",                 alttabfree,                   { .ui = 2 }, 1 },
@@ -417,6 +420,7 @@ static Key keys[] = {
 
 	{MODKEY,                                XK_e,               overtoggle,           {.ui = ~0}},
 	{MODKEY|ShiftMask,                      XK_e,               fullovertoggle,       {.ui = ~0}},
+	{MODKEY|ControlMask,                      XK_e,               spawn,                {.v = instantskippycmd} },
 
 	{MODKEY|ControlMask,                    XK_Left,            directionfocus,            {.ui = 3 }},
 	{MODKEY|ControlMask,                    XK_Right,           directionfocus,            {.ui = 1 }},
@@ -453,6 +457,14 @@ static Key keys[] = {
 	{MODKEY|Mod1Mask,                       XK_period,                       followmon,  {.i = +1}},
 	{MODKEY|ControlMask,                    XK_b,               cyclestatusbarmon,    {0}},
 	{MODKEY|ShiftMask,                      XK_b,               statusbarmontoggle,   {0}},
+
+	{MODKEY,                                XK_bracketright,    changeogap,           {.i = +1}},
+	{MODKEY,                                XK_bracketleft,     changeogap,           {.i = -1}},
+	{MODKEY|ShiftMask,                      XK_bracketright,    changeigap,           {.i = +1}},
+	{MODKEY|ShiftMask,                      XK_bracketleft,     changeigap,           {.i = -1}},
+	{MODKEY,                                XK_backslash,       togglegaps,           {0}},
+	{MODKEY|ShiftMask,                      XK_backslash,       defaultgaps,          {0}},
+	{MODKEY|ControlMask,                    XK_backslash,       togglesmartgaps,      {0}},
 
 	{MODKEY|ShiftMask|ControlMask|Mod1Mask, XK_period,                       desktopset, {0}},
 	TAGKEYS(XK_1, 0)

@@ -123,6 +123,9 @@ struct Pertag {
 	int smartgaps[LENGTH(tags) + 1];
 };
 
+/* compile-time check if all tags fit into an unsigned int bit array. */
+struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+
 void changegap(const Arg *arg){
     setgaps(
             selmon->innergap + arg->i,
@@ -182,9 +185,6 @@ void setgaps(int i , int o){
 
 	arrange(selmon);
 }
-
-/* compile-time check if all tags fit into an unsigned int bit array. */
-struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 
 void
 keyrelease(XEvent *e) {
@@ -563,7 +563,7 @@ showoverlay() {
 
     Client *c;
 	for (c = selmon->clients; c; c = c->next) {
-        if (c->tags & (1 << (selmon->pertag->curtag - 1)) && c->isfullscreen) {
+        if (c->tags & (1 << (selmon->pertag->curtag - 1)) && c->isfullscreen && !c->isfakefullscreen) {
             yoffset = 0;
             break;
         }
@@ -914,10 +914,8 @@ arrangemon(Monitor *m)
     m->clientcount = clientcountmon(m);
 
     for(c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
-        if (!c->isfloating && !c->isfullscreen && 
-                ((c->mon->clientcount == 1 && NULL != c->mon->lt[c->mon->sellt]->arrange
-                  && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)) || (&monocle == c->mon->lt[c->mon->sellt]->arrange
-                  && !(c->mon->outergap && c->mon->enablegap && !c->mon->smartgap)))) {
+        if (!c->isfloating && !c->isfullscreen && !(c->mon->outergap * c->mon->enablegap * !c->mon->smartgap) &&
+                ((c->mon->clientcount == 1 && NULL != c->mon->lt[c->mon->sellt]->arrange) || &monocle == c->mon->lt[c->mon->sellt]->arrange)) {
             savebw(c);
             c->bw = 0;
         } else {
@@ -2251,21 +2249,28 @@ xcommand()
 		case 1:  // toggle-type argument
 		    argnum = atoi(fcursor);
 		    if (argnum != 0 && fcursor[0] != '0') {
-			arg = ((Arg) { .ui = atoi(fcursor) });
+                arg = ((Arg) { .ui = atoi(fcursor) });
 		    } else {
-			arg = commands[i].arg;
+                arg = commands[i].arg;
 		    }
 		    break;
 		case 3:  // tag-type argument (bitmask)
 		    argnum = atoi(fcursor);
 		    if (argnum != 0 && fcursor[0] != '0') {
-			arg = ((Arg) { .ui = ( 1 << (atoi(fcursor) - 1) ) });
+                arg = ((Arg) { .ui = ( 1 << (atoi(fcursor) - 1) ) });
 		    } else {
-			arg = commands[i].arg;
+                arg = commands[i].arg;
 		    }
 		    break;
         case 4: //string argument
             arg = ((Arg) { .v = fcursor });
+            break;
+        case 5: // integer argument
+		    if (fcursor[0] != '\0') {
+                arg = ((Arg) { .i = atoi(fcursor) });
+		    } else {
+                arg = commands[i].arg;
+		    }
             break;
 	    }
 	}
@@ -3713,6 +3718,14 @@ resizeclient(Client *c, int x, int y, int w, int h)
 	c->oldh = c->h; c->h = wc.height = h;
 	wc.border_width = c->bw;
 
+	if ((!c->isfullscreen && !c->isfloating) && !(c->mon->outergap * c->mon->enablegap * !c->mon->smartgap) &&
+	((nexttiled(c->mon->clients) == c && !nexttiled(c->next) && NULL != c->mon->lt[c->mon->sellt]->arrange) ||
+	&monocle == c->mon->lt[c->mon->sellt]->arrange)) {
+		c->w = wc.width += c->bw * 2;
+		c->h = wc.height += c->bw * 2;
+		wc.border_width = 0;
+	}
+
 	XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
 	configure(c);
 	XSync(dpy, False);
@@ -4235,6 +4248,7 @@ setfullscreen(Client *c, int fullscreen)
 
 void commandprefix(const Arg *arg) {
     tagprefix = arg->ui;
+    drawbar(selmon);
 }
 
 void
@@ -4323,7 +4337,7 @@ setmfact(const Arg *arg)
 	if (!arg || !selmon->lt[selmon->sellt]->arrange)
 		return;
 	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
-	if (f < 0.1 || f > 0.9)
+	if (f < 0.05 || f > 0.95)
 		return;
 	selmon->mfact = selmon->pertag->mfacts[selmon->pertag->curtag] = f;
 
@@ -4601,7 +4615,7 @@ swaptags(const Arg *arg)
 
 	selmon->tagset[selmon->seltags] = newtag;
 
-	int i, tmpnmaster, tmpsellt, tmpshowbar;
+	int i, tmpnmaster, tmpsellt, tmpshowbar, tmpenablegaps, tmpsmartgaps, tmpoutergaps, tmpinnergaps;
 	float tmpmfact;
 	const Layout *tmplt[2];
 	for (i = 0; !(ui & 1 << i); i++);
@@ -4612,6 +4626,11 @@ swaptags(const Arg *arg)
 	tmplt[selmon->sellt] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt];
 	tmplt[selmon->sellt^1] = selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt^1];
 	tmpshowbar = selmon->pertag->showbars[selmon->pertag->curtag];
+	tmpenablegaps = selmon->pertag->enablegaps[selmon->pertag->curtag];
+	tmpsmartgaps = selmon->pertag->smartgaps[selmon->pertag->curtag];
+	tmpoutergaps = selmon->pertag->outergaps[selmon->pertag->curtag];
+	tmpinnergaps = selmon->pertag->innergaps[selmon->pertag->curtag];
+
 
 	selmon->pertag->nmasters[selmon->pertag->curtag] = selmon->pertag->nmasters[i + 1];
 	selmon->pertag->mfacts[selmon->pertag->curtag] = selmon->pertag->mfacts[i + 1];
@@ -4619,6 +4638,10 @@ swaptags(const Arg *arg)
 	selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt] = selmon->pertag->ltidxs[i + 1][selmon->sellt];
 	selmon->pertag->ltidxs[selmon->pertag->curtag][selmon->sellt^1] = selmon->pertag->ltidxs[i + 1][selmon->sellt^1];
 	selmon->pertag->showbars[selmon->pertag->curtag] = selmon->pertag->showbars[i + 1];
+	selmon->pertag->enablegaps[selmon->pertag->curtag] = selmon->pertag->enablegaps[i + 1];
+	selmon->pertag->smartgaps[selmon->pertag->curtag] = selmon->pertag->smartgaps[i + 1];
+	selmon->pertag->outergaps[selmon->pertag->curtag] = selmon->pertag->outergaps[i + 1];
+	selmon->pertag->innergaps[selmon->pertag->curtag] = selmon->pertag->innergaps[i + 1];
 
 	selmon->pertag->nmasters[i + 1] = tmpnmaster;
 	selmon->pertag->mfacts[i + 1] = tmpmfact;
@@ -4626,6 +4649,10 @@ swaptags(const Arg *arg)
 	selmon->pertag->ltidxs[i + 1][selmon->sellt] = tmplt[selmon->sellt];
 	selmon->pertag->ltidxs[i + 1][selmon->sellt^1] = tmplt[selmon->sellt^1];
 	selmon->pertag->showbars[i + 1] = tmpshowbar;
+	selmon->pertag->enablegaps[i + 1] = tmpenablegaps;
+	selmon->pertag->smartgaps[i + 1] = tmpsmartgaps;
+	selmon->pertag->outergaps[i + 1] = tmpoutergaps;
+	selmon->pertag->innergaps[i + 1] = tmpinnergaps;
 
 	if (selmon->pertag->prevtag == i + 1)
 		selmon->pertag->prevtag = selmon->pertag->curtag;
@@ -4869,6 +4896,19 @@ void
 toggleanimated(const Arg *arg)
 {
     ctrltoggle(&animated, arg->ui);
+}
+
+void setborderwidth(const Arg *arg) {
+    Client *c;
+    int width;
+    int d;
+    if (!selmon->sel)
+        return;
+    c = selmon->sel;
+    width = c->bw;
+    c->bw = arg->i;
+    d = width - c->bw;
+    resize(c, c->x, c->y, c->w + 2 * d, c->h + 2 * d, 0);
 }
 
 // disable/enable window focus following the mouse
@@ -5275,6 +5315,11 @@ void createscratchpad(const Arg *arg) {
 		return;
 	c = selmon->sel;
 
+	if (c->tags == 1 << 20) {
+		tag(&((Arg){.ui = 1 << ( selmon->pertag->curtag -1 )}));
+		return;
+	}
+
 	c->tags = 1 << 20;
 	c->issticky = selmon->scratchvisible;
 	if (!c->isfloating)
@@ -5394,8 +5439,13 @@ unmanage(Client *c, int destroyed)
 {
 	Monitor *m = c->mon;
 	XWindowChanges wc;
-	if (c == selmon->overlay)
-		selmon->overlay = NULL;
+    if (c == selmon->overlay) {
+        Monitor *tm;
+		for (tm = mons; tm; tm = tm->next) {
+			tm->overlay = NULL;
+		}
+    }
+
 
 	detach(c);
 	detachstack(c);
@@ -5884,6 +5934,7 @@ view(const Arg *arg)
 
 	int ui = computeprefix(arg);
 	int i;
+    printf("%d\n", (int)(arg->ui));
 
 	selmon->seltags ^= 1; /* toggle sel tagset */
 	if (ui & TAGMASK) {
@@ -5932,6 +5983,12 @@ moveleft(const Arg *arg) {
 void
 animleft(const Arg *arg) {
 
+
+	if (&overviewlayout == selmon->lt[selmon->sellt]->arrange) {
+        directionfocus(&((Arg) { .ui = 3 }));
+        return;
+    }
+
 	Client *tempc;
 
 	// windows like behaviour in floating layout
@@ -5965,6 +6022,11 @@ animright(const Arg *arg) {
 
 	Client *tempc;
 	int tmpcounter = 0;
+
+	if (&overviewlayout == selmon->lt[selmon->sellt]->arrange) {
+        directionfocus(&((Arg) { .ui = 1 }));
+        return;
+    }
 
 	if (selmon->sel && NULL == selmon->lt[selmon->sellt]->arrange) {
           XSetWindowBorder(dpy, selmon->sel->win,
@@ -6032,6 +6094,12 @@ viewtoleft(const Arg *arg) {
 void upkey(const Arg *arg) {
 	if (!selmon->sel)
 		return;
+
+	if (&overviewlayout == selmon->lt[selmon->sellt]->arrange) {
+        directionfocus(&((Arg) { .ui = 0 }));
+        return;
+    }
+
 	if (NULL == selmon->lt[selmon->sellt]->arrange) {
 		Client *c;
 		c = selmon->sel;
@@ -6059,6 +6127,12 @@ int unhideone()
 }
 
 void downkey(const Arg *arg) {
+
+	if (&overviewlayout == selmon->lt[selmon->sellt]->arrange) {
+        directionfocus(&((Arg) { .ui = 2 }));
+        return;
+    }
+
 	if (NULL == selmon->lt[selmon->sellt]->arrange) {
 		if (!selmon->sel)
 			return;
@@ -6278,7 +6352,8 @@ overtoggle(const Arg *arg){
 	} else {
 		tmptag = selmon->pertag->curtag;
         saveallfloating(selmon);
-		selmon->lt[selmon->sellt] = selmon->pertag->ltidxs[0][selmon->sellt] = (Layout *)&layouts[6];
+        selmon->lt[selmon->sellt] = selmon->pertag->ltidxs[0][selmon->sellt] =
+            (Layout *)&layouts[6];
 		view(arg);
 		if (selmon->lt[selmon->sellt] != (Layout *)&layouts[6] )
 			setlayout(&((Arg) { .v = &layouts[6] }));
