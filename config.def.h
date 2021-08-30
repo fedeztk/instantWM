@@ -323,16 +323,17 @@ static Key dkeys[] = {
 };
 
 static Key keys[] = {
+	/* modifier                             key                 function              argument */
 	{MODKEY,                                XK_bracketright,    changeogap,           {.i = +1}},
 	{MODKEY,                                XK_bracketleft,     changeogap,           {.i = -1}},
 	{MODKEY|ShiftMask,                      XK_bracketright,    changeigap,           {.i = +1}},
 	{MODKEY|ShiftMask,                      XK_bracketleft,     changeigap,           {.i = -1}},
 	{MODKEY,                                XK_backslash,       togglegaps,           {0}},
-	{MODKEY|ShiftMask,                      XK_backslash,       defaultgaps,          {0}},
 	{MODKEY|ControlMask,                    XK_backslash,       togglesmartgaps,      {0}},
 	{MODKEY,                                XK_equal,           changegap,            {.i = +1}},
 	{MODKEY,                                XK_minus,           changegap,            {.i = -1}},
-	/* modifier                             key                 function              argument */
+	{MODKEY|ShiftMask,                      XK_equal,           defaultgaps,          {0}},
+
 
 	{MODKEY|ControlMask,                    XK_Up,              spawn,                {.v = notificationclose}},
 	{MODKEY|ControlMask,                    XK_Down,            spawn,                {.v = notificationpop}},
@@ -420,7 +421,7 @@ static Key keys[] = {
 
 	{MODKEY,                                XK_e,               overtoggle,           {.ui = ~0}},
 	{MODKEY|ShiftMask,                      XK_e,               fullovertoggle,       {.ui = ~0}},
-	{MODKEY|ControlMask,                      XK_e,               spawn,                {.v = instantskippycmd} },
+	{MODKEY,                                XK_Escape,               spawn,                {.v = instantskippycmd} },
 
 	{MODKEY|ControlMask,                    XK_Left,            directionfocus,            {.ui = 3 }},
 	{MODKEY|ControlMask,                    XK_Right,           directionfocus,            {.ui = 1 }},
@@ -457,14 +458,6 @@ static Key keys[] = {
 	{MODKEY|Mod1Mask,                       XK_period,                       followmon,  {.i = +1}},
 	{MODKEY|ControlMask,                    XK_b,               cyclestatusbarmon,    {0}},
 	{MODKEY|ShiftMask,                      XK_b,               statusbarmontoggle,   {0}},
-
-	{MODKEY,                                XK_bracketright,    changeogap,           {.i = +1}},
-	{MODKEY,                                XK_bracketleft,     changeogap,           {.i = -1}},
-	{MODKEY|ShiftMask,                      XK_bracketright,    changeigap,           {.i = +1}},
-	{MODKEY|ShiftMask,                      XK_bracketleft,     changeigap,           {.i = -1}},
-	{MODKEY,                                XK_backslash,       togglegaps,           {0}},
-	{MODKEY|ShiftMask,                      XK_backslash,       defaultgaps,          {0}},
-	{MODKEY|ControlMask,                    XK_backslash,       togglesmartgaps,      {0}},
 
 	{MODKEY|ShiftMask|ControlMask|Mod1Mask, XK_period,                       desktopset, {0}},
 	TAGKEYS(XK_1, 0)
