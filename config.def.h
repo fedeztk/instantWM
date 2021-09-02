@@ -85,13 +85,6 @@ static const char *tagsalt[] = { "", "", "", "", "", "", ""
 
 static const char scratchpadname[] = "instantscratchpad";
 
-static const char *upvol[] = {"/usr/share/instantassist/utils/p.sh", "+", NULL};
-static const char *downvol[] = {"/usr/share/instantassist/utils/p.sh", "-", NULL};
-static const char *mutevol[] = {"/usr/share/instantassist/utils/p.sh", "m", NULL};
-
-static const char *upbright[] = {"/usr/share/instantassist/utils/b.sh", "+", NULL};
-static const char *downbright[] = {"/usr/share/instantassist/utils/b.sh", "-", NULL};
-
 static const Rule rules[] = {
 	/* xprop(1):
 	 *	WM_CLASS(STRING) = instance, class
@@ -152,6 +145,18 @@ static const Layout layouts[] = {
 		.v = (const char *[]) { "/bin/sh", "-c", cmd, NULL } \
 	}
 
+/* static const char *upvol[] = {"/usr/share/instantassist/utils/p.sh", "+", NULL}; */
+/* static const char *downvol[] = {"/usr/share/instantassist/utils/p.sh", "-", NULL}; */
+/* static const char *mutevol[] = {"/usr/share/instantassist/utils/p.sh", "m", NULL}; */
+static const char *upvol[] = {".config/script/instantcontrols.sh", "vup", NULL};
+static const char *downvol[] = {".config/script/instantcontrols.sh", "vdown", NULL};
+static const char *mutevol[] = {".config/script/instantcontrols.sh", "vmute", NULL};
+
+/* static const char *upbright[] = {"/usr/share/instantassist/utils/b.sh", "+", NULL}; */
+/* static const char *downbright[] = {"/usr/share/instantassist/utils/b.sh", "-", NULL}; */
+static const char *upbright[] = {".config/script/instantcontrols.sh", "bup", NULL};
+static const char *downbright[] = {".config/script/instantcontrols.sh", "bdown", NULL};
+
 /* commands */
 static char instantmenumon[2] = "0"; /* component of instantmenucmd, manipulated in spawn() */
 static const char *instantmenucmd[] = {"instantmenu_run", NULL};
@@ -206,8 +211,6 @@ static const char *playernext[] = { "playerctl", "next", NULL};
 static const char *playerprevious[] = { "playerctl", "previous", NULL};
 static const char *playerpause[] = { "playerctl", "play-pause", NULL};
 static const char *spoticli[] = { "spoticli", "m", NULL};
-
-static const char *skippyxd[] = { "instantskippy", NULL};
 
 #include "push.c"
 
@@ -421,7 +424,8 @@ static Key keys[] = {
 
 	{MODKEY,                                XK_e,               overtoggle,           {.ui = ~0}},
 	{MODKEY|ShiftMask,                      XK_e,               fullovertoggle,       {.ui = ~0}},
-	{MODKEY,                                XK_Escape,               spawn,                {.v = instantskippycmd} },
+	{MODKEY,                                XK_Escape,          spawn,                {.v = instantskippycmd}},
+	{ControlMask,                           XK_Tab,             spawn,                {.v = instantskippycmd}},
 
 	{MODKEY|ControlMask,                    XK_Left,            directionfocus,            {.ui = 3 }},
 	{MODKEY|ControlMask,                    XK_Right,           directionfocus,            {.ui = 1 }},
@@ -486,8 +490,6 @@ static Key keys[] = {
 	{MODKEY|Mod1Mask,              XK_Print,                 spawn,   {.v = fclipscrotcmd}},
 
 	{ MODKEY,                      XK_o,                     winview, {0} },
-
-	{ControlMask,                  XK_Tab,                    spawn,   {.v = skippyxd}},
 };
 
 /* button definitions */
