@@ -18,34 +18,34 @@ static int barheight;
 static char xresourcesfont[30];
 
 
-static char col_bg[] = "#121212";
-static char col_text[] = "#DFDFDF";
+static char col_bg[] = "#282A36";
+static char col_text[] = "#F8F8F2";
 static char col_black[] = "#000000";
 
-static char col_bg_accent[] = "#384252";
-static char col_bg_accent_hover[] = "#4C5564";
-static char col_bg_hover[] = "#1C1C1C";
+static char col_bg_accent[] = "#3E485A";
+static char col_bg_accent_hover[] = "#5B6579";
+static char col_bg_hover[] = "#605a77";
 
-static char col_light_blue[] = "#89B3F7";
-static char col_light_blue_hover[] = "#a1c2f9";
-static char col_blue[] = "#536DFE";
-static char col_blue_hover[] = "#758afe";
+static char col_light_yellow[] = "#F1FA8C";
+static char col_light_yellow_hover[] = "#F4F99D";
+static char col_yellow[] = "#ffb86c";
+static char col_yellow_hover[] = "#ff9320";
 
 
-static char col_light_green[] = "#81c995";
-static char col_light_green_hover[] = "#99d3aa";
-static char col_green[] = "#1e8e3e";
-static char col_green_hover[] = "#4ba465";
+static char col_light_blue[] = "#7a88cf";
+static char col_light_blue_hover[] = "#5c669b";
+static char col_blue[] = "#6272a4";
+static char col_blue_hover[] = "#4d5b86";
 
-static char col_light_yellow[] = "#fdd663";
-static char col_light_yellow_hover[] = "#fddd82";
-static char col_yellow[] = "#f9ab00";
-static char col_yellow_hover[] = "#f9bb33";
+static char col_light_purple[] = "#d7befb";
+static char col_light_purple_hover[] = "#dec9fc";
+static char col_purple[] = "#BD93F9";
+static char col_purple_hover[] = "#aa84e0";
 
-static char col_light_red[] = "#f28b82";
-static char col_light_red_hover[] = "#f4a19a";
-static char col_red[] = "#d93025";
-static char col_red_hover[] = "#e05951";
+static char col_light_red[] = "#ff8888";
+static char col_light_red_hover[] = "#ff9999";
+static char col_red[] = "#FF5555";
+static char col_red_hover[] = "#FF6666";
 
 static const char *tagcolors[2][5][3] = {
     [SchemeNoHover] = {
@@ -57,17 +57,17 @@ static const char *tagcolors[2][5][3] = {
         [SchemeTagFilled] = {
             [ColFg] = col_text,
             [ColBg] = col_bg_accent,
-            [ColDetail] = col_light_blue,
+            [ColDetail] = col_bg_accent,
         },
         [SchemeTagFocus] = {
             [ColFg] = col_black,
-            [ColBg] = col_light_green,
-            [ColDetail] = col_green,
+            [ColBg] = col_light_blue,
+            [ColDetail] = col_blue,
         },
         [SchemeTagNoFocus] = {
             [ColFg] = col_black,
-            [ColBg] = col_light_yellow,
-            [ColDetail] = col_yellow,
+            [ColBg] = col_light_purple,
+            [ColDetail] = col_purple,
         },
         [SchemeTagEmpty] = {
             [ColFg] = col_black,
@@ -79,22 +79,22 @@ static const char *tagcolors[2][5][3] = {
         [SchemeTagInactive] = {
             [ColFg] = col_text,
             [ColBg] = col_bg_hover,
-            [ColDetail] = col_bg,
+            [ColDetail] = col_bg_hover,
         },
         [SchemeTagFilled] = {
             [ColFg] = col_text,
             [ColBg] = col_bg_accent_hover,
-            [ColDetail] = col_light_blue_hover,
+            [ColDetail] = col_bg_accent_hover,
         },
         [SchemeTagFocus] = {
             [ColFg] = col_black,
-            [ColBg] = col_light_green_hover,
-            [ColDetail] = col_green_hover,
+            [ColBg] = col_light_blue_hover,
+            [ColDetail] = col_blue_hover,
         },
         [SchemeTagNoFocus] = {
             [ColFg] = col_black,
-            [ColBg] = col_light_yellow_hover,
-            [ColDetail] = col_yellow_hover,
+            [ColBg] = col_light_purple_hover,
+            [ColDetail] = col_purple_hover,
         },
         [SchemeTagEmpty] = {
             [ColFg] = col_black,
@@ -107,14 +107,14 @@ static const char *tagcolors[2][5][3] = {
 static const char *windowcolors[2][7][3] = {
     [SchemeNoHover] = {
         [SchemeWinFocus] = {
-            [ColFg] = col_text,
-            [ColBg] = col_bg_accent,
-            [ColDetail] = col_light_blue,
+            [ColFg] = col_bg,
+            [ColBg] = col_light_blue,
+            [ColDetail] = col_blue,
         },
         [SchemeWinNormal] = {
             [ColFg] = col_text,
-            [ColBg] = col_bg,
-            [ColDetail] = col_bg,
+            [ColBg] = col_bg_accent,
+            [ColDetail] = col_bg_accent,
         },
         [SchemeWinMinimized] = {
             [ ColFg ] = col_bg_accent,
@@ -123,36 +123,36 @@ static const char *windowcolors[2][7][3] = {
         },
         [SchemeWinSticky] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_yellow,
-            [ ColDetail ] = col_yellow,
+            [ ColBg ] = col_light_purple,
+            [ ColDetail ] = col_purple,
         },
         [ SchemeWinStickyFocus ] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_green,
-            [ ColDetail ] = col_green
+            [ ColBg ] = col_light_blue,
+            [ ColDetail ] = col_blue
         },
         [SchemeWinOverlay] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_yellow,
-            [ ColDetail ] = col_yellow,
+            [ ColBg ] = col_light_purple,
+            [ ColDetail ] = col_purple,
         },
         [SchemeWinOverlayFocus] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_green,
-            [ ColDetail ] = col_green,
+            [ ColBg ] = col_light_blue,
+            [ ColDetail ] = col_blue,
         },
     },
     //TODO: different hover colors
     [SchemeHover] = {
         [SchemeWinFocus] = {
-            [ColFg] = col_text,
-            [ColBg] = col_bg_accent_hover,
+            [ColFg] = col_bg,
+            [ColBg] = col_blue_hover,
             [ColDetail] = col_light_blue_hover,
         },
         [SchemeWinNormal] = {
             [ColFg] = col_text,
-            [ColBg] = col_bg_hover,
-            [ColDetail] = col_bg_hover,
+            [ColBg] = col_bg_accent_hover,
+            [ColDetail] = col_bg_accent_hover,
         },
         [SchemeWinMinimized] = {
             [ ColFg ] = col_bg_accent_hover,
@@ -161,23 +161,23 @@ static const char *windowcolors[2][7][3] = {
         },
         [SchemeWinSticky] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_yellow_hover,
-            [ ColDetail ] = col_yellow_hover,
+            [ ColBg ] = col_light_purple_hover,
+            [ ColDetail ] = col_purple_hover,
         },
         [ SchemeWinStickyFocus ] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_green_hover,
-            [ ColDetail ] = col_green_hover
+            [ ColBg ] = col_light_blue_hover,
+            [ ColDetail ] = col_blue_hover
         },
         [SchemeWinOverlay] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_yellow_hover,
-            [ ColDetail ] = col_yellow_hover,
+            [ ColBg ] = col_light_purple_hover,
+            [ ColDetail ] = col_purple_hover,
         },
         [SchemeWinOverlayFocus] = {
             [ ColFg ] = col_black,
-            [ ColBg ] = col_light_green_hover,
-            [ ColDetail ] = col_green_hover,
+            [ ColBg ] = col_light_blue_hover,
+            [ ColDetail ] = col_blue_hover,
         },
     }
 };
@@ -222,7 +222,7 @@ static const char *closebuttoncolors[2][3][3] = {
 static const char *bordercolors[] = {
     [ SchemeBorderNormal ] = col_bg_accent,
     [ SchemeBorderTileFocus ] = col_light_blue,
-    [ SchemeBorderFloatFocus ] = col_light_green,
+    [ SchemeBorderFloatFocus ] = col_light_purple,
     [ SchemeBorderSnap ] = col_light_yellow
 };
 
@@ -277,12 +277,12 @@ static const char *tagsalt[] = { "", "{}", "$", "", "", "", "", "
 
 static const char scratchpadname[] = "instantscratchpad";
 
-static const char *upvol[] = {"/usr/share/instantassist/utils/p.sh", "+", NULL};
-static const char *downvol[] = {"/usr/share/instantassist/utils/p.sh", "-", NULL};
-static const char *mutevol[] = {"/usr/share/instantassist/utils/p.sh", "m", NULL};
+static const char *upvol[] = {".config/script/instantcontrols.sh", "vup", NULL};
+static const char *downvol[] = {".config/script/instantcontrols.sh", "vdown", NULL};
+static const char *mutevol[] = {".config/script/instantcontrols.sh", "vmute", NULL};
 
-static const char *upbright[] = {"/usr/share/instantassist/utils/b.sh", "+", NULL};
-static const char *downbright[] = {"/usr/share/instantassist/utils/b.sh", "-", NULL};
+static const char *upbright[] = {".config/script/instantcontrols.sh", "bup", NULL};
+static const char *downbright[] = {".config/script/instantcontrols.sh", "bdown", NULL};
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -303,6 +303,8 @@ static const Rule rules[] = {
 	{"org-wellkord-globonote-Main", NULL,     NULL,  0,         1,          -1},
 	{"Peek",                        NULL,     NULL,  0,         1,          -1},
 	{"ROX-Filer",                   NULL,     NULL,  0,         0,          -1},
+	{"Gnome-calculator",            NULL,     NULL,  0,         1,          -1},
+	{"MEGAsync",                    NULL,     NULL,  0,         1,          -1},
 };
 
 /* layout(s) */
@@ -313,15 +315,15 @@ static const int decorhints  = 1;    /* 1 means respect decoration hints */
 
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "+",        tile },    /* first entry is default */
-	{ "#",        grid },
-	{ "-",        NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
-	{ "|||",      tcl },
-	{ "H[]",      deck },
-	{ "O",        overviewlayout },
-	{ "TTT",      bstack },
-	{ "===",      bstackhoriz },
+	{ "﬿",        tile },    /* first entry is default */
+	{ "",        grid },
+	{ "",        NULL },    /* no layout function means floating behavior */
+	{ "",      monocle },
+	{ "ﰦ",      tcl },
+	{ "",      deck },
+	{ "",        overviewlayout },
+	{ "難",      bstack },
+	{ "ﰧ",      bstackhoriz },
 	{ NULL,       NULL },
 };
 
@@ -445,7 +447,7 @@ static Xcommand commands[] = {
 
 static Key dkeys[] = {
 	/* modifier  key        function     argument */
-	{0,          XK_r,      spawn,       {.v = rangercmd } },
+	{0,          XK_o,      spawn,       {.v = rangercmd } },
 	{0,          XK_e,      spawn,       {.v = editorcmd } },
 	{0,          XK_n,      spawn,       {.v = nautiluscmd } },
 	{0,          XK_space,  spawn,       {.v = panther} },
@@ -494,8 +496,8 @@ static Key keys[] = {
 	{MODKEY|ShiftMask,                      XK_d,               drawwindow,           {0}},
 	{MODKEY|ShiftMask,                      XK_Escape,          spawn,                {.v = systemmonitorcmd}},
 
-	{MODKEY,                                XK_r,               spawn,                {.v = rangercmd } },
-	{MODKEY|ControlMask|Mod1Mask,           XK_r,               redrawwin,            {0} },
+	{MODKEY,                                XK_o,               spawn,                {.v = rangercmd } },
+	{MODKEY|ControlMask|Mod1Mask,           XK_o,               redrawwin,            {0} },
 	{MODKEY,                                XK_n,               spawn,                {.v = nautiluscmd } },
 	{MODKEY|ControlMask,                    XK_q,               spawn,                {.v = instantshutdowncmd } },
 	{MODKEY,                                XK_y,               spawn,                {.v = panther} },
@@ -630,7 +632,7 @@ static Key keys[] = {
 	{MODKEY|ControlMask,           XK_Print,                 spawn,   {.v = clipscrotcmd}},
 	{MODKEY|Mod1Mask,              XK_Print,                 spawn,   {.v = fclipscrotcmd}},
 
-	{ MODKEY,                      XK_o,                     winview, {0} },
+	{ MODKEY|ShiftMask,            XK_o,                     winview, {0} },
 
 };
 
