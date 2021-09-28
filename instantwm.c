@@ -4264,6 +4264,24 @@ void setlayout(const Arg *arg) {
     }
 }
 
+void
+settcltilelayout(const Arg *arg)
+{
+	if (strcmp(selmon->lt[selmon->sellt]->symbol, layouts[0].symbol) != 0)
+		setlayout(arg);
+	else
+		setlayout(&((Arg) { .v = &layouts[4]}));
+}
+
+void
+setmonocledecklayout(const Arg *arg)
+{
+	if (strcmp(selmon->lt[selmon->sellt]->symbol, layouts[3].symbol) != 0)
+		setlayout(arg);
+	else
+		setlayout(&((Arg) { .v = &layouts[5]}));
+}
+
 /* arg > 1.0 will set mfact absolutely */
 void setmfact(const Arg *arg) {
     float f;

@@ -126,7 +126,7 @@ deck(Monitor *m)
 
 	dn = n - m->nmaster;
 	if(dn > 0) /* override layout symbol */
-		snprintf(m->ltsymbol, sizeof m->ltsymbol, "D %d", dn);
+ 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "  %d", dn);
 
 	if(n > m->nmaster)
 		mw = m->nmaster ? m->ww * m->mfact : 0;
@@ -195,7 +195,7 @@ monocle(Monitor *m)
 		if (ISVISIBLE(c))
 			n++;
 	if (n > 0) /* override layout symbol */
-		snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%1u]", n);
+ 		snprintf(m->ltsymbol, sizeof m->ltsymbol, "  %1u", n);
 	for (c = nexttiled(m->clients); c; c = nexttiled(c->next)) {
 		animateclient(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 7 * (animated && c == selmon->sel), 0);
 	}
