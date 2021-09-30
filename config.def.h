@@ -7,7 +7,7 @@ static const unsigned int borderpx = 3;		  /* border pixel of windows */
 static const unsigned int snap = 32;		  /* snap pixel */
 static const unsigned int startmenusize = 30;		  /* snap pixel */
 static const unsigned int systraypinning = 0; /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
-static const unsigned int systrayspacing = 0; /* systray spacing */
+static const unsigned int systrayspacing = 5; /* systray spacing */
 static const int systraypinningfailfirst = 1; /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
 static const int showsystray = 1;			  /* 0 means no systray */
 static const int showbar = 1;				  /* 0 means no bar */
@@ -24,12 +24,12 @@ static char col_black[] = "#000000";
 
 static char col_bg_accent[] = "#3E485A";
 static char col_bg_accent_hover[] = "#5B6579";
-static char col_bg_hover[] = "#605a77";
+static char col_bg_hover[] = "#7b8393";
 
 static char col_light_yellow[] = "#F1FA8C";
 static char col_light_yellow_hover[] = "#F4F99D";
-static char col_yellow[] = "#ffb86c";
-static char col_yellow_hover[] = "#ff9320";
+static char col_yellow[] = "#e8f743";
+static char col_yellow_hover[] = "#d0de3c";
 
 
 static char col_light_blue[] = "#7a88cf";
@@ -60,7 +60,7 @@ static const char *tagcolors[2][5][3] = {
             [ColDetail] = col_bg_accent,
         },
         [SchemeTagFocus] = {
-            [ColFg] = col_black,
+            [ColFg] = col_bg,
             [ColBg] = col_light_blue,
             [ColDetail] = col_blue,
         },
@@ -117,7 +117,7 @@ static const char *windowcolors[2][7][3] = {
             [ColDetail] = col_bg_accent,
         },
         [SchemeWinMinimized] = {
-            [ ColFg ] = col_bg_accent,
+            [ ColFg ] = col_bg_hover,
             [ ColBg ] = col_bg,
             [ ColDetail ] = col_bg,
         },
@@ -146,8 +146,8 @@ static const char *windowcolors[2][7][3] = {
     [SchemeHover] = {
         [SchemeWinFocus] = {
             [ColFg] = col_bg,
-            [ColBg] = col_blue_hover,
-            [ColDetail] = col_light_blue_hover,
+            [ColBg] = col_light_blue_hover,
+            [ColDetail] = col_bg_accent_hover,
         },
         [SchemeWinNormal] = {
             [ColFg] = col_text,
@@ -155,7 +155,7 @@ static const char *windowcolors[2][7][3] = {
             [ColDetail] = col_bg_accent_hover,
         },
         [SchemeWinMinimized] = {
-            [ ColFg ] = col_bg_accent_hover,
+            [ ColFg ] = col_light_blue,
             [ ColBg ] = col_bg,
             [ ColDetail ] = col_bg,
         },
@@ -196,8 +196,8 @@ static const char *closebuttoncolors[2][3][3] = {
         }, 
         [ SchemeCloseFullscreen ] = {
             [ColFg] = col_text,
-            [ColBg] = col_light_red,
-            [ColDetail] = col_red,
+            [ColBg] = col_bg_accent,
+            [ColDetail] = col_bg,
         }, 
     }, 
     [ SchemeHover ] = {
@@ -213,8 +213,8 @@ static const char *closebuttoncolors[2][3][3] = {
         },
         [ SchemeCloseFullscreen ] = {
             [ColFg] = col_text,
-            [ColBg] = col_light_red_hover,
-            [ColDetail] = col_red_hover,
+            [ColBg] = col_bg_hover,
+            [ColDetail] = col_bg_accent_hover,
         }, 
     }
 };
@@ -330,7 +330,7 @@ static const Layout layouts[] = {
 /* key definitions */
 #define MODKEY Mod4Mask
 #define TAGKEYS(KEY, TAG)                                          \
-		{MODKEY, KEY, view, {.ui = 1 << TAG}},                     \
+		{MODKEY, KEY, keyview, {.ui = 1 << TAG}},                     \
 		{MODKEY|ControlMask, KEY, toggleview, {.ui = 1 << TAG}}, \
 		{MODKEY|ShiftMask, KEY, tag, {.ui = 1 << TAG}},          \
 		{MODKEY|Mod1Mask, KEY, followtag, {.ui = 1 << TAG}},          \
@@ -473,15 +473,15 @@ static Key dkeys[] = {
 	{0,          XK_Up,     shiftview,   {.i = +1 } },
 	{0,          XK_Down,   shiftview,   {.i = -1 } },
 
-	{0,          XK_1,      view,        {.ui = 1 << 0}},
-	{0,          XK_2,      view,        {.ui = 1 << 1}},
-	{0,          XK_3,      view,        {.ui = 1 << 2}},
-	{0,          XK_4,      view,        {.ui = 1 << 3}},
-	{0,          XK_5,      view,        {.ui = 1 << 4}},
-	{0,          XK_6,      view,        {.ui = 1 << 5}},
-	{0,          XK_7,      view,        {.ui = 1 << 6}},
-	{0,          XK_8,      view,        {.ui = 1 << 7}},
-	{0,          XK_9,      view,        {.ui = 1 << 8}},
+	{0,          XK_1,      keyview,        {.ui = 1 << 0}},
+	{0,          XK_2,      keyview,        {.ui = 1 << 1}},
+	{0,          XK_3,      keyview,        {.ui = 1 << 2}},
+	{0,          XK_4,      keyview,        {.ui = 1 << 3}},
+	{0,          XK_5,      keyview,        {.ui = 1 << 4}},
+	{0,          XK_6,      keyview,        {.ui = 1 << 5}},
+	{0,          XK_7,      keyview,        {.ui = 1 << 6}},
+	{0,          XK_8,      keyview,        {.ui = 1 << 7}},
+	{0,          XK_9,      keyview,        {.ui = 1 << 8}},
 
 };
 
@@ -554,6 +554,7 @@ static Key keys[] = {
 	{MODKEY|ShiftMask,                      XK_Tab,             focuslastclient,      {0}},
 	{MODKEY|Mod1Mask,                       XK_Tab,             followview,           {0}},
 	{MODKEY,                                XK_q,               shutkill,             {0}},
+    {MODKEY|ShiftMask,                      XK_q,               togglelocked,         {0}},
 	{Mod1Mask,                              XK_F4,              killclient,           {0}},
 	{MODKEY,                                XK_F1,              spawn,                {.v = helpcmd}},
 	{MODKEY,                                XK_F2,              toggleprefix,         {0}},
