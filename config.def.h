@@ -7,7 +7,7 @@ static const unsigned int borderpx = 3;		  /* border pixel of windows */
 static const unsigned int snap = 32;		  /* snap pixel */
 static const unsigned int startmenusize = 30;		  /* snap pixel */
 static const unsigned int systraypinning = 0; /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
-static const unsigned int systrayspacing = 5; /* systray spacing */
+static const unsigned int systrayspacing = 0; /* systray spacing */
 static const int systraypinningfailfirst = 1; /* 1: if pinning fails, display systray on the first monitor, False: display systray on the last monitor*/
 static const int showsystray = 1;			  /* 0 means no systray */
 static const int showbar = 1;				  /* 0 means no bar */
@@ -18,34 +18,34 @@ static int barheight;
 static char xresourcesfont[30];
 
 
-static char col_bg[] = "#282A36";
-static char col_text[] = "#F8F8F2";
+static char col_bg[] = "#292b2e";
+static char col_text[] = "#F8F8ef";
 static char col_black[] = "#000000";
 
-static char col_bg_accent[] = "#3E485A";
-static char col_bg_accent_hover[] = "#5B6579";
-static char col_bg_hover[] = "#7b8393";
+static char col_bg_accent[] = "#44505c";
+static char col_bg_accent_hover[] = "#69727c";
+static char col_bg_hover[] = "#7c848c";
 
-static char col_light_yellow[] = "#F1FA8C";
-static char col_light_yellow_hover[] = "#F4F99D";
-static char col_yellow[] = "#e8f743";
-static char col_yellow_hover[] = "#d0de3c";
+static char col_light_yellow[] = "#b89f33";
+static char col_light_yellow_hover[] = "#cdbb70";
+static char col_yellow[] = "#b1951d";
+static char col_yellow_hover[] = "#d4c584";
 
 
-static char col_light_blue[] = "#7a88cf";
-static char col_light_blue_hover[] = "#5c669b";
-static char col_blue[] = "#6272a4";
-static char col_blue_hover[] = "#4d5b86";
+static char col_light_blue[] = "#6981c5";
+static char col_light_blue_hover[] = "#788dca";
+static char col_blue[] = "#5e74b1";
+static char col_blue_hover[] = "#6c7eb5";
 
-static char col_light_purple[] = "#d7befb";
-static char col_light_purple_hover[] = "#dec9fc";
-static char col_purple[] = "#BD93F9";
-static char col_purple_hover[] = "#aa84e0";
+static char col_light_purple[] = "#35a8a5";
+static char col_light_purple_hover[] = "#49b0ae";
+static char col_purple[] = "#2d9574";
+static char col_purple_hover[] = "#3a8c8b";
 
-static char col_light_red[] = "#ff8888";
-static char col_light_red_hover[] = "#ff9999";
-static char col_red[] = "#FF5555";
-static char col_red_hover[] = "#FF6666";
+static char col_light_red[] = "#d26487";
+static char col_light_red_hover[] = "#db839f";
+static char col_red[] = "#bd5a79";
+static char col_red_hover[] = "#df92ab";
 
 static const char *tagcolors[2][5][3] = {
     [SchemeNoHover] = {
@@ -147,7 +147,7 @@ static const char *windowcolors[2][7][3] = {
         [SchemeWinFocus] = {
             [ColFg] = col_bg,
             [ColBg] = col_light_blue_hover,
-            [ColDetail] = col_bg_accent_hover,
+            [ColDetail] = col_blue_hover,
         },
         [SchemeWinNormal] = {
             [ColFg] = col_text,
@@ -366,7 +366,7 @@ static const char *searchcmd[] = {"instantsearch", NULL};
 static const char *keylayoutswitchcmd[] = {"instantkeyswitch", NULL};
 static const char *iswitchcmd[] = {"iswitch", NULL};
 static const char *instantswitchcmd[] = {"rofi", "-show", "window", "-kb-row-down", "Alt+Tab,Down", "-kb-row-up", "Alt+Ctrl+Tab,Up", "-kb-accept-entry", "!Alt_L,!Alt+Tab,Return", "-me-select-entry", "", "-me-accept-entry", "MousePrimary", NULL};
-static const char *caretinstantswitchcmd[] = {"rofi", "-show", "window", "-kb-row-down", "Alt+Tab,Down", "-kb-row-up", "Alt+Ctrl+Tab,Up", "-kb-accept-entry", "!Alt_L,!Alt+Tab,Return", "-me-select-entry", "", "-me-accept-entry", "MousePrimary", "-theme", "/usr/share/instantdotfiles/rootconfig/rofi/appmenu.rasi", NULL};
+static const char *caretinstantswitchcmd[] = {"rofi", "-show", "window", "-kb-row-down", "Alt+Tab,Down", "-kb-row-up", "Alt+Ctrl+Tab,Up", "-kb-accept-entry", "!Alt_L,!Alt+Tab,Return", "-me-select-entry", "", "-me-accept-entry", "MousePrimary", "-theme", "~/.config/rofi/appmenu.rasi", NULL};
 static const char *instantskippycmd[] = {"instantskippy", NULL};
 static const char *onboardcmd[] = {"onboard", NULL};
 static const char *instantshutdowncmd[] = {"instantshutdown", NULL};
